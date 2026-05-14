@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+venv/
+*.egg-info/
+
+# Large generated data
+datasets/
+videos/
+logs/
+*.hdf5
+*.h5
+*.mp4
+*.avi
+*.mov
+*.npy
+*.npz
+
+# Reports that are generated
+reports/*.png
+reports/*.pdf
+reports/*.csv
+
+# System
+.DS_Store
+Thumbs.db
+
+# Cursor / editor
+.cursor/
+.vscode/
