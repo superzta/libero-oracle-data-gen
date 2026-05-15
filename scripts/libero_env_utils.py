@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Optional
 
 
+CUSTOM_TASKS = {
+    "button_box": Path(__file__).resolve().parents[1] / "bddl_files" / "button_box.bddl",
+}
+
+
 def configure_runtime_env() -> None:
     """Set process environment before importing robosuite or LIBERO."""
 
@@ -17,8 +22,18 @@ def configure_runtime_env() -> None:
     os.environ.setdefault("MESA_SHADER_CACHE_DIR", str(Path("/tmp/libero_oracle_mesa_cache")))
 
 
-def resolve_bddl_path(task: Optional[str] = None, suite: str = "libero_10", task_id: int = 0, bddl_file: Optional[str] = None) -> str:
+def resolve_bddl_path(
+    task: Optional[str] = None,
+    suite: str = "libero_10",
+    task_id: int = 0,
+    bddl_file: Optional[str] = None,
+    custom_task: Optional[str] = None,
+) -> str:
     configure_runtime_env()
+    if custom_task:
+        if custom_task not in CUSTOM_TASKS:
+            raise ValueError(f"Unknown custom task {custom_task!r}. Available: {sorted(CUSTOM_TASKS)}")
+        return str(CUSTOM_TASKS[custom_task].resolve())
     if bddl_file:
         return str(Path(bddl_file).expanduser().resolve())
 
@@ -44,4 +59,3 @@ def get_task_language(bddl_file: str) -> str:
     import libero.libero.envs.bddl_utils as BDDLUtils
 
     return BDDLUtils.get_problem_info(bddl_file)["language_instruction"]
-

@@ -56,6 +56,33 @@ python scripts/test_builtin_libero.py
 
 ## Collect Demos
 
+Run the custom button-box smoke test:
+
+```bash
+python scripts/test_custom_button_box.py
+```
+
+Collect 5 successful debug demos for the first custom task:
+
+```bash
+python scripts/collect_oracle_demos.py \
+  --custom-task button_box \
+  --controller button_box \
+  --num-successes 5 \
+  --max-attempts 10 \
+  --horizon 350 \
+  --camera-size 64 \
+  --output-dir datasets \
+  --keep-failures
+```
+
+Validate and summarize the debug dataset:
+
+```bash
+python scripts/validate_dataset.py datasets/<button_box_run_dir> --expected-successes 5
+python scripts/summarize_dataset.py datasets/<button_box_run_dir>
+```
+
 Run a short pipeline verification on a built-in task with the no-op controller:
 
 ```bash
@@ -140,15 +167,27 @@ For the approved tasks, true custom object classes are likely needed for peg/hol
 
 Implemented:
 
+- First custom task: `button_box`, loaded directly from `bddl_files/button_box.bddl`.
+- `scripts/test_custom_button_box.py` for custom reset/step smoke testing.
+- `ButtonBoxController` now runs the full button-press then cube-to-box FSM and collects successful debug demos.
 - Built-in task listing and LIBERO structure inspection.
 - Import-environment fixes for this robosuite/numba setup.
 - Generic oracle collection pipeline with HDF5 serialization.
 - FSM base controller and skeleton controllers for all approved tasks.
 - Dataset validation, summary, replay, montage, and conservative BDDL install scripts.
 
+Current button-box prototype:
+
+- Uses stock `LIBERO_Tabletop_Manipulation`.
+- Uses existing `red_coffee_mug` as a red button proxy.
+- Uses existing `butter` as the cube-like object proxy.
+- Uses existing `white_storage_box` as the box.
+- Tracks `button_pressed` geometrically in the controller.
+- Uses an oracle attachment/place helper for reliable debug collection before dedicated physical button/cube assets exist.
+
 Next steps:
 
-- Create or import real MJCF assets for the approved custom objects.
-- Add minimal LIBERO object/problem registrations in a reviewed upstream patch if existing problem classes are insufficient.
+- Replace button/cube proxies with dedicated MJCF assets when moving from debug prototype to final dataset.
+- Add minimal LIBERO object/problem registrations in a reviewed upstream patch only if existing problem classes are insufficient.
 - Tune each FSM against rendered rollouts until it achieves high success rate.
 - Run collection to 100 successful demonstrations per task and validate each dataset.

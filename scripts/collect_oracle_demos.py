@@ -143,6 +143,7 @@ def main() -> None:
     parser.add_argument("--task-id", type=int, default=0)
     parser.add_argument("--task-name", default=None)
     parser.add_argument("--bddl-file", default=None)
+    parser.add_argument("--custom-task", default=None, help="Named custom task from bddl_files/, e.g. button_box")
     parser.add_argument("--controller", default="noop", choices=sorted(CONTROLLER_REGISTRY))
     parser.add_argument("--controller-metadata", default="{}", help="JSON object passed to controller.reset")
     parser.add_argument("--num-successes", type=int, default=100)
@@ -157,7 +158,7 @@ def main() -> None:
     parser.add_argument("--keep-failures", action="store_true")
     args = parser.parse_args()
 
-    args.bddl_path = resolve_bddl_path(args.task_name, args.suite, args.task_id, args.bddl_file)
+    args.bddl_path = resolve_bddl_path(args.task_name, args.suite, args.task_id, args.bddl_file, args.custom_task)
     language = get_task_language(args.bddl_path)
     run_id = time.strftime("%Y%m%d_%H%M%S")
     out_dir = Path(args.output_dir) / f"{Path(args.bddl_path).stem}_{args.controller}_{run_id}"

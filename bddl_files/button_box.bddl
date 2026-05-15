@@ -1,0 +1,73 @@
+(define (problem LIBERO_Tabletop_Manipulation)
+  (:domain robosuite)
+  (:language Press the red button, then place the blue cube inside the box)
+    (:regions
+      (button_region
+          (:target main_table)
+          (:ranges (
+              (-0.18 -0.18 -0.12 -0.12)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+          (:rgba (1.0 0.0 0.0 0.25))
+      )
+      (cube_region
+          (:target main_table)
+          (:ranges (
+              (0.10 -0.18 0.16 -0.12)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+          (:rgba (0.0 0.0 1.0 0.25))
+      )
+      (box_region
+          (:target main_table)
+          (:ranges (
+              (-0.03 0.13 0.03 0.19)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+          (:rgba (0.0 1.0 0.0 0.20))
+      )
+      (box_contain_region
+          (:target white_storage_box_1)
+      )
+    )
+
+  (:fixtures
+    main_table - table
+  )
+
+  (:objects
+    red_coffee_mug_1 - red_coffee_mug
+    butter_1 - butter
+    white_storage_box_1 - white_storage_box
+  )
+
+  (:obj_of_interest
+    red_coffee_mug_1
+    butter_1
+    white_storage_box_1
+    main_table_box_region
+  )
+
+  (:init
+    (On red_coffee_mug_1 main_table_button_region)
+    (On butter_1 main_table_cube_region)
+    (On white_storage_box_1 main_table_box_region)
+  )
+
+  (:goal
+    (And (On butter_1 main_table_box_region))
+  )
+
+)
