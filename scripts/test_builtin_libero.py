@@ -1,8 +1,9 @@
 import os
+from pathlib import Path
 
-os.environ.setdefault("MUJOCO_GL", "egl")
-os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
+from libero_env_utils import configure_runtime_env
 
+configure_runtime_env()
 from libero.libero import benchmark
 from libero.libero.envs import OffScreenRenderEnv
 from libero.libero.utils import get_libero_path
@@ -39,6 +40,11 @@ def main():
 
     print("LIBERO external repo test OK")
     env.close()
+    Path("reports").mkdir(exist_ok=True)
+    Path("reports/test_builtin_libero.txt").write_text(
+        f"Task language: {task.language}\nBDDL file: {task_bddl_file}\nObservation keys: {list(obs.keys())}\n",
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":

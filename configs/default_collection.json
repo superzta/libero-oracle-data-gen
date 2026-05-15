@@ -1,0 +1,9 @@
+{
+  "num_successes": 100,
+  "max_attempts": 500,
+  "seed": 0,
+  "horizon": 400,
+  "camera_size": 128,
+  "camera_names": ["agentview", "robot0_eye_in_hand"],
+  "save_video": false
+}

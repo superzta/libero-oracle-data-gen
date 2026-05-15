@@ -35,3 +35,16 @@ Thumbs.db
 # Cursor / editor
 .cursor/
 .vscode/
+
+# Generated data
+datasets/*
+videos/*
+logs/*
+reports/*.mp4
+reports/*.png
+reports/*.csv
+*.hdf5
+*.h5
+*.mp4
+*.avi
+*.mov
