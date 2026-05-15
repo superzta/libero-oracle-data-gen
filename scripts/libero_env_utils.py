@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -22,6 +23,15 @@ def configure_runtime_env() -> None:
     os.environ.setdefault("MESA_SHADER_CACHE_DIR", str(Path("/tmp/libero_oracle_mesa_cache")))
 
 
+def register_custom_objects() -> None:
+    """Register this repo's custom object classes with LIBERO."""
+
+    repo_root = Path(__file__).resolve().parents[1]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    import custom_objects.libero_oracle_objects  # noqa: F401
+
+
 def resolve_bddl_path(
     task: Optional[str] = None,
     suite: str = "libero_10",
@@ -31,6 +41,7 @@ def resolve_bddl_path(
 ) -> str:
     configure_runtime_env()
     if custom_task:
+        register_custom_objects()
         if custom_task not in CUSTOM_TASKS:
             raise ValueError(f"Unknown custom task {custom_task!r}. Available: {sorted(CUSTOM_TASKS)}")
         return str(CUSTOM_TASKS[custom_task].resolve())

@@ -1,0 +1,20 @@
+<mujoco model="open_box">
+  <worldbody>
+    <body>
+      <body name="object">
+        <site type="box" pos="0 -0.020 0.025" quat="1 0 0 0" size="0.080 0.120 0.025" rgba="0.0 0.8 0.1 0.0" name="contain_region" group="0" />
+        <geom type="box" pos="0 0 0.004" size="0.065 0.065 0.004" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="0.061 0 0.034" size="0.004 0.065 0.034" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="-0.061 0 0.034" size="0.004 0.065 0.034" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="0 0.061 0.026" size="0.065 0.004 0.026" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="0 0 0.004" size="0.065 0.065 0.004" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="0.061 0 0.034" size="0.004 0.065 0.034" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="-0.061 0 0.034" size="0.004 0.065 0.034" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="0 0.061 0.026" size="0.065 0.004 0.026" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+      </body>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.000" name="bottom_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.070" name="top_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0.065 0.065 0.034" name="horizontal_radius_site" group="0" />
+    </body>
+  </worldbody>
+</mujoco>

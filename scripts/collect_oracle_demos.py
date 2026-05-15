@@ -106,6 +106,7 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             failure_reason = "env_done"
             break
 
+    final_obs = numeric_obs(obs)
     return {
         "success": success,
         "failure_reason": failure_reason,
@@ -124,6 +125,17 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "success": success,
             "failure_reason": failure_reason,
             "episode_length": len(actions),
+            "initial_positions": {
+                key: value.reshape(-1).astype(float).tolist()
+                for key, value in initial_obs.items()
+                if key.endswith("_pos")
+            },
+            "final_positions": {
+                key: value.reshape(-1).astype(float).tolist()
+                for key, value in final_obs.items()
+                if key.endswith("_pos")
+            },
+            "oracle_state_helper_used": bool(metadata.get("allow_oracle_state_helper", False)),
         },
     }
 
@@ -146,6 +158,7 @@ def main() -> None:
     parser.add_argument("--custom-task", default=None, help="Named custom task from bddl_files/, e.g. button_box")
     parser.add_argument("--controller", default="noop", choices=sorted(CONTROLLER_REGISTRY))
     parser.add_argument("--controller-metadata", default="{}", help="JSON object passed to controller.reset")
+    parser.add_argument("--allow-oracle-state-helper", action="store_true", help="Allow controllers to set object poses directly for debug collection.")
     parser.add_argument("--num-successes", type=int, default=100)
     parser.add_argument("--max-attempts", type=int, default=300)
     parser.add_argument("--seed", type=int, default=0)
@@ -168,6 +181,8 @@ def main() -> None:
     controller_cls = CONTROLLER_REGISTRY[args.controller]
     controller = controller_cls()
     controller_metadata = json.loads(args.controller_metadata)
+    if args.allow_oracle_state_helper:
+        controller_metadata["allow_oracle_state_helper"] = True
     base_metadata = {
         "task_language": language,
         "bddl_file": args.bddl_path,

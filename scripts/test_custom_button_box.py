@@ -15,6 +15,13 @@ from libero_env_utils import configure_runtime_env, resolve_bddl_path
 configure_runtime_env()
 
 
+def object_pos(env, obs, name):
+    key = f"{name}_pos"
+    if key in obs:
+        return np.asarray(obs[key])
+    return np.asarray(env.env.sim.data.body_xpos[env.env.obj_body_id[name]])
+
+
 def main() -> None:
     from libero.libero.envs import OffScreenRenderEnv
 
@@ -32,9 +39,9 @@ def main() -> None:
         obs = env.reset()
         print("Reset OK")
         print("Observation keys:", list(obs.keys()))
-        print("Button pos:", np.asarray(obs["red_coffee_mug_1_pos"]).round(4).tolist())
-        print("Cube proxy pos:", np.asarray(obs["butter_1_pos"]).round(4).tolist())
-        print("Box pos:", np.asarray(obs["white_storage_box_1_pos"]).round(4).tolist())
+        print("Button pos:", object_pos(env, obs, "red_button_1").round(4).tolist())
+        print("Blue cube pos:", object_pos(env, obs, "blue_cube_1").round(4).tolist())
+        print("Open box pos:", object_pos(env, obs, "open_box_1").round(4).tolist())
 
         controller = ButtonBoxController()
         controller.reset(env, obs, {})
@@ -53,4 +60,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -1,0 +1,31 @@
+<mujoco model="red_button">
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom
+          type="cylinder"
+          size="0.030 0.010"
+          pos="0 0 0.010"
+          rgba="0.95 0.02 0.02 1"
+          group="1"
+          contype="0"
+          conaffinity="0"
+        />
+        <geom
+          type="cylinder"
+          size="0.030 0.010"
+          pos="0 0 0.010"
+          rgba="0.95 0.02 0.02 0.15"
+          group="0"
+          density="5000"
+          friction="3.0 1.0 0.1"
+          solimp="0.998 0.998 0.001"
+          solref="0.001 1"
+        />
+      </body>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.000" name="bottom_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.020" name="top_site" group="0" />
+      <site rgba="0 0 0 0" size="0.030" pos="0.030 0 0.010" name="horizontal_radius_site" group="0" />
+    </body>
+  </worldbody>
+</mujoco>

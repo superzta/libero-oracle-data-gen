@@ -81,10 +81,10 @@ class BaseFSMController:
         return self.make_action(delta, gripper=gripper)
 
     def open_gripper(self) -> np.ndarray:
-        return self.make_action(np.zeros(3, dtype=np.float32), gripper=1.0)
+        return self.make_action(np.zeros(3, dtype=np.float32), gripper=-1.0)
 
     def close_gripper(self) -> np.ndarray:
-        return self.make_action(np.zeros(3, dtype=np.float32), gripper=-1.0)
+        return self.make_action(np.zeros(3, dtype=np.float32), gripper=1.0)
 
     def wait_steps(self, n_steps: int, gripper: float = 0.0) -> np.ndarray:
         if self.stage_step >= n_steps:
@@ -105,4 +105,3 @@ class NoOpController(BaseFSMController):
     def act(self, obs: Dict[str, np.ndarray]) -> np.ndarray:
         self.tick()
         return self.make_action(np.zeros(3, dtype=np.float32), gripper=0.0)
-

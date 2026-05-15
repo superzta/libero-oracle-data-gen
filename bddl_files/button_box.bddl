@@ -5,41 +5,41 @@
       (button_region
           (:target main_table)
           (:ranges (
-              (-0.18 -0.18 -0.12 -0.12)
+              (-0.20 -0.20 -0.10 -0.10)
             )
           )
           (:yaw_rotation (
               (0.0 0.0)
             )
           )
-          (:rgba (1.0 0.0 0.0 0.25))
+          (:rgba (1.0 0.0 0.0 0.0))
       )
       (cube_region
           (:target main_table)
           (:ranges (
-              (0.10 -0.18 0.16 -0.12)
+              (-0.04 -0.05 0.04 -0.01)
             )
           )
           (:yaw_rotation (
               (0.0 0.0)
             )
           )
-          (:rgba (0.0 0.0 1.0 0.25))
+          (:rgba (0.0 0.0 1.0 0.0))
       )
       (box_region
           (:target main_table)
           (:ranges (
-              (-0.03 0.13 0.03 0.19)
+              (-0.04 0.05 0.04 0.11)
             )
           )
           (:yaw_rotation (
               (0.0 0.0)
             )
           )
-          (:rgba (0.0 1.0 0.0 0.20))
+          (:rgba (0.0 1.0 0.0 0.0))
       )
-      (box_contain_region
-          (:target white_storage_box_1)
+      (contain_region
+          (:target open_box_1)
       )
     )
 
@@ -48,26 +48,26 @@
   )
 
   (:objects
-    red_coffee_mug_1 - red_coffee_mug
-    butter_1 - butter
-    white_storage_box_1 - white_storage_box
+    red_button_1 - red_button
+    blue_cube_1 - blue_cube
+    open_box_1 - open_box
   )
 
   (:obj_of_interest
-    red_coffee_mug_1
-    butter_1
-    white_storage_box_1
+    red_button_1
+    blue_cube_1
+    open_box_1
     main_table_box_region
   )
 
   (:init
-    (On red_coffee_mug_1 main_table_button_region)
-    (On butter_1 main_table_cube_region)
-    (On white_storage_box_1 main_table_box_region)
+    (On red_button_1 main_table_button_region)
+    (On blue_cube_1 main_table_cube_region)
+    (On open_box_1 main_table_box_region)
   )
 
   (:goal
-    (And (On butter_1 main_table_box_region))
+    (And (In blue_cube_1 open_box_1_contain_region))
   )
 
 )
