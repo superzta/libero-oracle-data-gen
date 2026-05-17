@@ -19,8 +19,8 @@ ASSET_ROOT = Path(__file__).resolve().parents[1] / "custom_objects" / "assets"
 class OracleXMLObject(MujocoXMLObject):
     """Small XML-backed object whose assets live in this repo."""
 
-    def __init__(self, name: str, obj_name: str, joints=None):
-        if joints is None:
+    def __init__(self, name: str, obj_name: str, joints="default"):
+        if joints == "default":
             joints = [dict(type="free", damping="0.0005")]
         super().__init__(
             str(ASSET_ROOT / obj_name / f"{obj_name}.xml"),
@@ -29,7 +29,7 @@ class OracleXMLObject(MujocoXMLObject):
             obj_type="all",
             duplicate_collision_geoms=False,
         )
-        self.rotation = (0.0, 0.0)
+        self.rotation = (0.0, np.pi / 2)
         self.rotation_axis = "z"
         self.category_name = "_".join(
             re.sub(r"([A-Z0-9])", r" \1", self.__class__.__name__).split()
@@ -43,7 +43,7 @@ class RedButton(OracleXMLObject):
 
     def __init__(self, name="red_button", obj_name="red_button", joints=None):
         if joints is None:
-            joints = [dict(type="free", damping="0.00005")]
+            joints = []
         super().__init__(name=name, obj_name=obj_name, joints=joints)
 
 
@@ -51,9 +51,9 @@ class RedButton(OracleXMLObject):
 class BlueCube(OracleXMLObject):
     """A visually explicit blue cube for pick-and-place."""
 
-    def __init__(self, name="blue_cube", obj_name="blue_cube", joints=None):
+    def __init__(self, name="blue_cube", obj_name="blue_cube", joints="default"):
         super().__init__(name=name, obj_name=obj_name, joints=joints)
-        self.rotation = (0.0, np.pi / 2)
+        self.rotation = (0.0, 0.0)
         self.rotation_axis = "z"
 
 
@@ -61,7 +61,7 @@ class BlueCube(OracleXMLObject):
 class OpenBox(OracleXMLObject):
     """A simple open-top container with a `contain_region` site."""
 
-    def __init__(self, name="open_box", obj_name="open_box", joints=None):
-        if joints is None:
+    def __init__(self, name="open_box", obj_name="open_box", joints="default"):
+        if joints == "default":
             joints = [dict(type="free", damping="0.0005")]
         super().__init__(name=name, obj_name=obj_name, joints=joints)

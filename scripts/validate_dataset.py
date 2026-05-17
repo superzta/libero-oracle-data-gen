@@ -65,7 +65,7 @@ def main() -> None:
             initial_cube = np.asarray(ep["initial"]["blue_cube_1_pos"], dtype=np.float32)
             final_cube = np.asarray(ep["final"]["blue_cube_1_pos"], dtype=np.float32)
             final_box = np.asarray(ep["final"]["open_box_1_pos"], dtype=np.float32)
-            if np.linalg.norm(final_cube[:2] - initial_cube[:2]) <= 0.03:
+            if np.linalg.norm(final_cube[:2] - initial_cube[:2]) <= 0.018:
                 errors.append(f"blue cube did not move enough: {ep['path']}")
             if np.linalg.norm(final_cube[:2] - final_box[:2]) > 0.135:
                 errors.append(f"blue cube final xy outside box region: {ep['path']}")

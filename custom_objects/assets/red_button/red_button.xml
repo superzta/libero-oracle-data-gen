@@ -17,10 +17,10 @@
           pos="0 0 0.010"
           rgba="0.95 0.02 0.02 0.15"
           group="0"
-          density="5000"
-          friction="3.0 1.0 0.1"
-          solimp="0.998 0.998 0.001"
-          solref="0.001 1"
+          density="500000"
+          friction="8.0 2.0 0.2"
+          solimp="0.999 0.999 0.0001"
+          solref="0.0005 1"
         />
       </body>
       <site rgba="0 0 0 0" size="0.005" pos="0 0 0.000" name="bottom_site" group="0" />

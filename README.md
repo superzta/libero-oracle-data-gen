@@ -62,18 +62,29 @@ Run the custom button-box smoke test:
 python scripts/test_custom_button_box.py
 ```
 
-Collect 5 successful debug demos for the first custom task:
+Strict button-box QA gate before any video collection:
+
+```bash
+python scripts/debug_button_box_primitives.py --mode pick_lift_only --num-seeds 10 --strict
+python scripts/debug_button_box_primitives.py --mode place_only --num-seeds 10 --strict
+python scripts/qa_button_box_rollout.py --num-seeds 5 --horizon 700 --strict
+```
+
+Collect 5 successful button-box demos only after strict QA passes:
 
 ```bash
 python scripts/collect_oracle_demos.py \
   --custom-task button_box \
   --controller button_box \
   --num-successes 5 \
-  --max-attempts 10 \
-  --horizon 350 \
-  --camera-size 64 \
+  --max-attempts 25 \
+  --horizon 700 \
+  --camera-size 128 \
+  --save-video \
   --output-dir datasets \
-  --keep-failures
+  --keep-failures \
+  --final-hold-steps 50 \
+  --require-physical-success
 ```
 
 Validate and summarize the debug dataset:
@@ -81,6 +92,9 @@ Validate and summarize the debug dataset:
 ```bash
 python scripts/validate_dataset.py datasets/<button_box_run_dir> --expected-successes 5
 python scripts/summarize_dataset.py datasets/<button_box_run_dir>
+python scripts/analyze_rollout_video.py videos/<button_box_run_dir>/success_001_seed_<seed>.mp4 \
+  --output-dir reports/button_box_video_qa \
+  --strict
 ```
 
 Run a short pipeline verification on a built-in task with the no-op controller:
@@ -179,15 +193,15 @@ Implemented:
 Current button-box prototype:
 
 - Uses stock `LIBERO_Tabletop_Manipulation`.
-- Uses existing `red_coffee_mug` as a red button proxy.
-- Uses existing `butter` as the cube-like object proxy.
-- Uses existing `white_storage_box` as the box.
-- Tracks `button_pressed` geometrically in the controller.
-- Uses an oracle attachment/place helper for reliable debug collection before dedicated physical button/cube assets exist.
+- Uses repo-local custom MJCF assets for `red_button`, `blue_cube`, and `open_box`.
+- The red button is a fixture-style fixed pad. Button press success is geometric, not based on a movable button state.
+- The blue object is a single-body, single-geom graspable blue block. The open box is a wide shallow tray for reliable physical placement.
+- Tracks `button_pressed` geometrically from end-effector xy/radius/z threshold.
+- The controller now uses explicit stages through `OPEN_GRIPPER`, `WAIT_SETTLE`, `RETRACT_FROM_BOX`, `VERIFY_FINAL_STATE`, and `DONE`.
+- Oracle state helper use is disallowed by default and recorded in metadata if enabled.
+- Current strict QA status: **state QA passed, video QA not run**. On 2026-05-17, `pick_lift_only` passed 10/10 strict seeds, `place_only` passed 10/10 strict seeds, and `scripts/qa_button_box_rollout.py --num-seeds 5 --horizon 700 --strict` passed 5/5 with no oracle helper use and no direct rollout object pose writes.
 
 Next steps:
 
-- Replace button/cube proxies with dedicated MJCF assets when moving from debug prototype to final dataset.
-- Add minimal LIBERO object/problem registrations in a reviewed upstream patch only if existing problem classes are insufficient.
-- Tune each FSM against rendered rollouts until it achieves high success rate.
-- Run collection to 100 successful demonstrations per task and validate each dataset.
+- Generate only a 5-success video batch next, then run dataset validation, summary, and strict video QA.
+- Do not generate the 100-demo dataset until strict state QA, 5-demo validation, and video QA all pass.

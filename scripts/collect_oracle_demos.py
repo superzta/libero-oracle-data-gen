@@ -14,6 +14,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from controllers import CONTROLLER_REGISTRY
+from button_box_reset_utils import apply_button_box_reset_randomization
 from libero_env_utils import configure_runtime_env, get_task_language, resolve_bddl_path
 
 configure_runtime_env()
@@ -72,14 +73,23 @@ def save_episode_hdf5(path: Path, episode: Dict[str, Any]) -> None:
 def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[str, Any]) -> Dict[str, Any]:
     env.seed(seed)
     obs = env.reset()
+    try:
+        env.env.sim.forward()
+    except Exception:
+        pass
+    if args.custom_task == "button_box":
+        obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20)
     controller.reset(env, obs, metadata)
     observations: Dict[str, List[np.ndarray]] = {key: [] for key in numeric_obs(obs)}
     actions, rewards, dones, env_states, debug = [], [], [], [], []
     frames = []
     initial_obs = numeric_obs(obs)
     success = False
+    success_seen = False
+    final_hold_remaining = 0
     failure_reason = "max_steps"
     info = {}
+    stage_trace = []
 
     for _ in range(args.horizon):
         for key, value in numeric_obs(obs).items():
@@ -97,11 +107,23 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
         actions.append(action.copy())
         rewards.append(float(reward))
         dones.append(bool(done))
-        debug.append(controller.get_debug_state())
-        if controller.is_success(obs, info, env):
+        setattr(controller, "_last_debug_obs", obs)
+        debug_state = controller.get_debug_state()
+        debug.append(debug_state)
+        if args.save_stage_trace:
+            stage_trace.append(debug_state)
+        physical_success = controller.is_success(obs, info, env)
+        if args.require_physical_success:
+            physical_success = physical_success and passes_button_box_physical_checks(controller, obs)
+        if physical_success and not success_seen:
             success = True
+            success_seen = True
             failure_reason = ""
-            break
+            final_hold_remaining = int(args.final_hold_steps)
+        if success_seen:
+            if final_hold_remaining <= 0:
+                break
+            final_hold_remaining -= 1
         if done:
             failure_reason = "env_done"
             break
@@ -125,6 +147,7 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "success": success,
             "failure_reason": failure_reason,
             "episode_length": len(actions),
+            "stage_trace": stage_trace,
             "initial_positions": {
                 key: value.reshape(-1).astype(float).tolist()
                 for key, value in initial_obs.items()
@@ -135,9 +158,23 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
                 for key, value in final_obs.items()
                 if key.endswith("_pos")
             },
-            "oracle_state_helper_used": bool(metadata.get("allow_oracle_state_helper", False)),
+            "oracle_state_helper_used": bool(getattr(controller, "oracle_helper_used", False)),
+            "direct_pose_writes_during_rollout": int(getattr(controller, "direct_pose_writes_during_rollout", 0)),
+            "physical_success_required": bool(args.require_physical_success),
+            "final_hold_steps": int(args.final_hold_steps),
         },
     }
+
+
+def passes_button_box_physical_checks(controller, obs: Dict[str, Any]) -> bool:
+    if getattr(controller, "allow_oracle_state_helper", False) or getattr(controller, "oracle_helper_used", False):
+        return False
+    if getattr(controller, "stage", "") != "DONE":
+        return False
+    try:
+        return bool(controller._physical_final_state(obs))
+    except Exception:
+        return False
 
 
 def save_video(path: Path, frames: List[np.ndarray], fps: int = 20) -> None:
@@ -159,6 +196,11 @@ def main() -> None:
     parser.add_argument("--controller", default="noop", choices=sorted(CONTROLLER_REGISTRY))
     parser.add_argument("--controller-metadata", default="{}", help="JSON object passed to controller.reset")
     parser.add_argument("--allow-oracle-state-helper", action="store_true", help="Allow controllers to set object poses directly for debug collection.")
+    parser.add_argument("--disallow-oracle-helper", action="store_true", default=True)
+    parser.add_argument("--require-physical-success", action="store_true", default=True)
+    parser.add_argument("--save-stage-trace", action="store_true")
+    parser.add_argument("--final-hold-steps", type=int, default=30)
+    parser.add_argument("--min-horizon", type=int, default=0)
     parser.add_argument("--num-successes", type=int, default=100)
     parser.add_argument("--max-attempts", type=int, default=300)
     parser.add_argument("--seed", type=int, default=0)
@@ -170,6 +212,10 @@ def main() -> None:
     parser.add_argument("--output-dir", default="datasets")
     parser.add_argument("--keep-failures", action="store_true")
     args = parser.parse_args()
+    if args.min_horizon and args.horizon < args.min_horizon:
+        args.horizon = args.min_horizon
+    if args.disallow_oracle_helper and args.allow_oracle_state_helper:
+        raise SystemExit("--allow-oracle-state-helper conflicts with --disallow-oracle-helper")
 
     args.bddl_path = resolve_bddl_path(args.task_name, args.suite, args.task_id, args.bddl_file, args.custom_task)
     language = get_task_language(args.bddl_path)

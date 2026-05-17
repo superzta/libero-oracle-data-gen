@@ -1,0 +1,841 @@
+{
+  "best_parameter_set": {
+    "close_hold_steps": 36,
+    "descent_max_delta": 0.035,
+    "grasp_x_offset": 0.0,
+    "grasp_y_offset": -0.02,
+    "grasp_z_offset": -0.015,
+    "lift_max_delta": 0.025,
+    "pregrasp_z_offset": 0.16
+  },
+  "best_result": {
+    "average_cube_z_increase": 0.01865377426147461,
+    "average_xy_error_at_close": 0.015179302729666232,
+    "failure_reasons": {
+      "grasp_failed_cube_not_lifted": 9,
+      "passed": 1
+    },
+    "index": 1,
+    "num_seeds": 10,
+    "params": {
+      "close_hold_steps": 36,
+      "descent_max_delta": 0.035,
+      "grasp_x_offset": 0.0,
+      "grasp_y_offset": -0.02,
+      "grasp_z_offset": -0.015,
+      "lift_max_delta": 0.025,
+      "pregrasp_z_offset": 0.16
+    },
+    "pass_count": 1,
+    "per_seed_summary": [
+      {
+        "cube_z_increase": 0.040293991565704346,
+        "failure_reason": "",
+        "passed": true,
+        "seed": 0,
+        "xy_error_at_close": 0.008173108100891113
+      },
+      {
+        "cube_z_increase": 0.009700953960418701,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 1,
+        "xy_error_at_close": 0.019876472651958466
+      },
+      {
+        "cube_z_increase": 0.02538597583770752,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 2,
+        "xy_error_at_close": 0.012780927121639252
+      },
+      {
+        "cube_z_increase": 0.007013976573944092,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 3,
+        "xy_error_at_close": 0.019785074517130852
+      },
+      {
+        "cube_z_increase": 0.009754955768585205,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 4,
+        "xy_error_at_close": 0.019893504679203033
+      },
+      {
+        "cube_z_increase": 0.024923980236053467,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 5,
+        "xy_error_at_close": 0.013142812065780163
+      },
+      {
+        "cube_z_increase": 0.014639973640441895,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 6,
+        "xy_error_at_close": 0.013500437140464783
+      },
+      {
+        "cube_z_increase": 0.007566988468170166,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 7,
+        "xy_error_at_close": 0.02029435895383358
+      },
+      {
+        "cube_z_increase": 0.02165597677230835,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 8,
+        "xy_error_at_close": 0.011569757014513016
+      },
+      {
+        "cube_z_increase": 0.025600969791412354,
+        "failure_reason": "grasp_failed_cube_not_lifted",
+        "passed": false,
+        "seed": 9,
+        "xy_error_at_close": 0.012776575051248074
+      }
+    ]
+  },
+  "created_at": "2026-05-16 00:31:04",
+  "num_seeds": 10,
+  "passed": false,
+  "results": [
+    {
+      "average_cube_z_increase": 0.01865377426147461,
+      "average_xy_error_at_close": 0.015250939317047596,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 9,
+        "passed": 1
+      },
+      "index": 0,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": 0.035,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 1,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.040293991565704346,
+          "failure_reason": "",
+          "passed": true,
+          "seed": 0,
+          "xy_error_at_close": 0.008889473974704742
+        },
+        {
+          "cube_z_increase": 0.009700953960418701,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.019876472651958466
+        },
+        {
+          "cube_z_increase": 0.02538597583770752,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.012780927121639252
+        },
+        {
+          "cube_z_increase": 0.007013976573944092,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.019785074517130852
+        },
+        {
+          "cube_z_increase": 0.009754955768585205,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.019893504679203033
+        },
+        {
+          "cube_z_increase": 0.024923980236053467,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.013142812065780163
+        },
+        {
+          "cube_z_increase": 0.014639973640441895,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.013500437140464783
+        },
+        {
+          "cube_z_increase": 0.007566988468170166,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.02029435895383358
+        },
+        {
+          "cube_z_increase": 0.02165597677230835,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.011569757014513016
+        },
+        {
+          "cube_z_increase": 0.025600969791412354,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.012776575051248074
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.01865377426147461,
+      "average_xy_error_at_close": 0.015179302729666232,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 9,
+        "passed": 1
+      },
+      "index": 1,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": -0.015,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 1,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.040293991565704346,
+          "failure_reason": "",
+          "passed": true,
+          "seed": 0,
+          "xy_error_at_close": 0.008173108100891113
+        },
+        {
+          "cube_z_increase": 0.009700953960418701,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.019876472651958466
+        },
+        {
+          "cube_z_increase": 0.02538597583770752,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.012780927121639252
+        },
+        {
+          "cube_z_increase": 0.007013976573944092,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.019785074517130852
+        },
+        {
+          "cube_z_increase": 0.009754955768585205,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.019893504679203033
+        },
+        {
+          "cube_z_increase": 0.024923980236053467,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.013142812065780163
+        },
+        {
+          "cube_z_increase": 0.014639973640441895,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.013500437140464783
+        },
+        {
+          "cube_z_increase": 0.007566988468170166,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.02029435895383358
+        },
+        {
+          "cube_z_increase": 0.02165597677230835,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.011569757014513016
+        },
+        {
+          "cube_z_increase": 0.025600969791412354,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.012776575051248074
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.01865377426147461,
+      "average_xy_error_at_close": 0.015179302729666232,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 9,
+        "passed": 1
+      },
+      "index": 2,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": -0.01,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 1,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.040293991565704346,
+          "failure_reason": "",
+          "passed": true,
+          "seed": 0,
+          "xy_error_at_close": 0.008173108100891113
+        },
+        {
+          "cube_z_increase": 0.009700953960418701,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.019876472651958466
+        },
+        {
+          "cube_z_increase": 0.02538597583770752,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.012780927121639252
+        },
+        {
+          "cube_z_increase": 0.007013976573944092,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.019785074517130852
+        },
+        {
+          "cube_z_increase": 0.009754955768585205,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.019893504679203033
+        },
+        {
+          "cube_z_increase": 0.024923980236053467,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.013142812065780163
+        },
+        {
+          "cube_z_increase": 0.014639973640441895,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.013500437140464783
+        },
+        {
+          "cube_z_increase": 0.007566988468170166,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.02029435895383358
+        },
+        {
+          "cube_z_increase": 0.02165597677230835,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.011569757014513016
+        },
+        {
+          "cube_z_increase": 0.025600969791412354,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.012776575051248074
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.01509077548980713,
+      "average_xy_error_at_close": 0.01567794820293784,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 9,
+        "passed": 1
+      },
+      "index": 3,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": -0.005,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 1,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.040293991565704346,
+          "failure_reason": "",
+          "passed": true,
+          "seed": 0,
+          "xy_error_at_close": 0.008173108100891113
+        },
+        {
+          "cube_z_increase": 0.009700953960418701,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.019876472651958466
+        },
+        {
+          "cube_z_increase": 0.02538597583770752,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.012780927121639252
+        },
+        {
+          "cube_z_increase": 0.007013976573944092,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.019785074517130852
+        },
+        {
+          "cube_z_increase": 0.009754955768585205,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.019893504679203033
+        },
+        {
+          "cube_z_increase": 0.024923980236053467,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.013142812065780163
+        },
+        {
+          "cube_z_increase": 0.014639973640441895,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.013500437140464783
+        },
+        {
+          "cube_z_increase": 0.007566988468170166,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.02029435895383358
+        },
+        {
+          "cube_z_increase": 0.02165597677230835,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.011569757014513016
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.017763029783964157
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.004193079471588135,
+      "average_xy_error_at_close": 0.016087156999856234,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 10
+      },
+      "index": 4,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": 0.0,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 0,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.014986991882324219,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 0,
+          "xy_error_at_close": 0.019772307947278023
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.01770620048046112
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.017716670408844948
+        },
+        {
+          "cube_z_increase": 0.014986991882324219,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.019764237105846405
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.015112502500414848
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.01784314028918743
+        },
+        {
+          "cube_z_increase": 0.020247995853424072,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.007935497909784317
+        },
+        {
+          "cube_z_increase": 0.02036195993423462,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.01700349524617195
+        },
+        {
+          "cube_z_increase": 0.021491944789886475,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.010345830582082272
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.01767168752849102
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.006843268871307373,
+      "average_xy_error_at_close": 0.015356213971972465,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 10
+      },
+      "index": 5,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": 0.005,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 0,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.030186951160430908,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 0,
+          "xy_error_at_close": 0.01014228630810976
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.01831538788974285
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.018312232568860054
+        },
+        {
+          "cube_z_increase": 0.023924946784973145,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.010768843814730644
+        },
+        {
+          "cube_z_increase": 0.008395969867706299,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.01989850588142872
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.01770024374127388
+        },
+        {
+          "cube_z_increase": 0.01937997341156006,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.009907582774758339
+        },
+        {
+          "cube_z_increase": 0.00516897439956665,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.020499538630247116
+        },
+        {
+          "cube_z_increase": 0.021491944789886475,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.010345830582082272
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.01767168752849102
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.006843268871307373,
+      "average_xy_error_at_close": 0.015356213971972465,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 10
+      },
+      "index": 6,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": 0.01,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 0,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.030186951160430908,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 0,
+          "xy_error_at_close": 0.01014228630810976
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.01831538788974285
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.018312232568860054
+        },
+        {
+          "cube_z_increase": 0.023924946784973145,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.010768843814730644
+        },
+        {
+          "cube_z_increase": 0.008395969867706299,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.01989850588142872
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.01770024374127388
+        },
+        {
+          "cube_z_increase": 0.01937997341156006,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.009907582774758339
+        },
+        {
+          "cube_z_increase": 0.00516897439956665,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.020499538630247116
+        },
+        {
+          "cube_z_increase": 0.021491944789886475,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.010345830582082272
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.01767168752849102
+        }
+      ]
+    },
+    {
+      "average_cube_z_increase": 0.006843268871307373,
+      "average_xy_error_at_close": 0.015356213971972465,
+      "failure_reasons": {
+        "grasp_failed_cube_not_lifted": 10
+      },
+      "index": 7,
+      "num_seeds": 10,
+      "params": {
+        "close_hold_steps": 36,
+        "descent_max_delta": 0.035,
+        "grasp_x_offset": 0.0,
+        "grasp_y_offset": -0.02,
+        "grasp_z_offset": 0.02,
+        "lift_max_delta": 0.025,
+        "pregrasp_z_offset": 0.16
+      },
+      "pass_count": 0,
+      "per_seed_summary": [
+        {
+          "cube_z_increase": 0.030186951160430908,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 0,
+          "xy_error_at_close": 0.01014228630810976
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 1,
+          "xy_error_at_close": 0.01831538788974285
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 2,
+          "xy_error_at_close": 0.018312232568860054
+        },
+        {
+          "cube_z_increase": 0.023924946784973145,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 3,
+          "xy_error_at_close": 0.010768843814730644
+        },
+        {
+          "cube_z_increase": 0.008395969867706299,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 4,
+          "xy_error_at_close": 0.01989850588142872
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 5,
+          "xy_error_at_close": 0.01770024374127388
+        },
+        {
+          "cube_z_increase": 0.01937997341156006,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 6,
+          "xy_error_at_close": 0.009907582774758339
+        },
+        {
+          "cube_z_increase": 0.00516897439956665,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 7,
+          "xy_error_at_close": 0.020499538630247116
+        },
+        {
+          "cube_z_increase": 0.021491944789886475,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 8,
+          "xy_error_at_close": 0.010345830582082272
+        },
+        {
+          "cube_z_increase": -0.010029017925262451,
+          "failure_reason": "grasp_failed_cube_not_lifted",
+          "passed": false,
+          "seed": 9,
+          "xy_error_at_close": 0.01767168752849102
+        }
+      ]
+    }
+  ],
+  "strict": true
+}

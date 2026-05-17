@@ -17,7 +17,7 @@
       (cube_region
           (:target main_table)
           (:ranges (
-              (-0.04 -0.05 0.04 -0.01)
+              (-0.02 -0.04 0.02 -0.03)
             )
           )
           (:yaw_rotation (
@@ -29,7 +29,7 @@
       (box_region
           (:target main_table)
           (:ranges (
-              (-0.04 0.05 0.04 0.11)
+              (-0.03 0.16 0.03 0.20)
             )
           )
           (:yaw_rotation (
@@ -45,10 +45,10 @@
 
   (:fixtures
     main_table - table
+    red_button_1 - red_button
   )
 
   (:objects
-    red_button_1 - red_button
     blue_cube_1 - blue_cube
     open_box_1 - open_box
   )
