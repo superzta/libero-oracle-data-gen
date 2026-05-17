@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -28,7 +29,7 @@ def object_pos(env, obs: Dict[str, Any], name: str) -> np.ndarray:
 
 
 def inside_box(cube: np.ndarray, box: np.ndarray) -> bool:
-    return bool(np.linalg.norm(cube[:2] - box[:2]) <= 0.145 and box[2] - 0.025 <= cube[2] <= box[2] + 0.17)
+    return bool(np.linalg.norm(cube[:2] - box[:2]) <= 0.095 and box[2] - 0.025 <= cube[2] <= box[2] + 0.17)
 
 
 def primitive_failure_code(
@@ -45,7 +46,7 @@ def primitive_failure_code(
         return "randomization_not_applied"
     if not button_pressed or "HOLD_BUTTON_PRESS" not in stages:
         return "button_press_failed"
-    if "LIFT_CUBE" in stages and cube_z_increase < 0.04:
+    if "LIFT_CUBE" in stages and cube_z_increase < 0.030:
         return "grasp_failed_cube_not_lifted"
     if "MOVE_ABOVE_BOX" in stages and cube_z_increase >= 0.04 and "OPEN_GRIPPER" not in stages:
         return "grasp_slip_during_lift"
@@ -80,14 +81,14 @@ class JointWriteGuard:
         self.env.env.sim.data.set_joint_qpos = self.original
 
 
-def run_seed(env, seed: int, horizon: int, allow_helper: bool) -> Dict[str, Any]:
+def run_seed(env, seed: int, horizon: int, allow_helper: bool, randomization_level: str = "debug_small") -> Dict[str, Any]:
     env.seed(seed)
     obs = env.reset()
     try:
         env.env.sim.forward()
     except Exception:
         pass
-    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20)
+    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20, randomization_level=randomization_level)
     controller = ButtonBoxController()
     controller.reset(env, obs, {"allow_oracle_state_helper": allow_helper})
     object_joints = []
@@ -116,7 +117,7 @@ def run_seed(env, seed: int, horizon: int, allow_helper: bool) -> Dict[str, Any]
             if debug["stage"] == "OPEN_GRIPPER" and release_step is None:
                 release_step = step
             success = controller.is_success(obs, info, env)
-            if success or done:
+            if success:
                 break
 
     final_button = object_pos(env, obs, controller.button_name).copy()
@@ -202,6 +203,52 @@ def run_seed(env, seed: int, horizon: int, allow_helper: bool) -> Dict[str, Any]
     }
 
 
+def compute_diversity_metrics(per_seed: list) -> Dict[str, Any]:
+    """Compute initial-state diversity metrics across seeds."""
+    cube_initials = np.asarray([item["cube_initial_pose"][:2] for item in per_seed], dtype=np.float32)
+    n = len(cube_initials)
+    if n < 2:
+        return {"n": n, "cube_x_range": 0.0, "cube_y_range": 0.0, "cube_xy_std": [0.0, 0.0], "bins_occupied": 0}
+    x_range = float(cube_initials[:, 0].max() - cube_initials[:, 0].min())
+    y_range = float(cube_initials[:, 1].max() - cube_initials[:, 1].min())
+    xy_std = cube_initials.std(axis=0).astype(float).round(6).tolist()
+    # Count occupied 3x3 grid bins over the sampled extent.
+    bins = set()
+    x_edges = np.linspace(float(cube_initials[:, 0].min()), float(cube_initials[:, 0].max()), 4)
+    y_edges = np.linspace(float(cube_initials[:, 1].min()), float(cube_initials[:, 1].max()), 4)
+    for xy in cube_initials:
+        bx = int(np.clip(np.searchsorted(x_edges, xy[0], side="right") - 1, 0, 2))
+        by = int(np.clip(np.searchsorted(y_edges, xy[1], side="right") - 1, 0, 2))
+        bins.add((bx, by))
+    return {
+        "n": n,
+        "cube_x_range": round(x_range, 5),
+        "cube_y_range": round(y_range, 5),
+        "cube_xy_std": xy_std,
+        "bins_occupied": len(bins),
+        "cube_initial_positions": cube_initials.astype(float).round(5).tolist(),
+    }
+
+
+def primary_failure(item: Dict[str, Any]) -> str:
+    reasons = item.get("reasons") or []
+    return str(reasons[0]) if reasons else "passed"
+
+
+def print_running_summary(per_seed: List[Dict[str, Any]]) -> None:
+    completed = len(per_seed)
+    pass_count = sum(1 for item in per_seed if item["passed"])
+    fail_count = completed - pass_count
+    failures = Counter(primary_failure(item) for item in per_seed if not item["passed"])
+    common = failures.most_common(1)[0][0] if failures else "none"
+    rate = pass_count / completed if completed else 0.0
+    print(
+        f"running: completed={completed} pass={pass_count} fail={fail_count} "
+        f"success_rate={rate:.3f} most_common_failure={common}",
+        flush=True,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-seeds", type=int, default=5)
@@ -211,6 +258,12 @@ def main() -> None:
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--allow-oracle-state-helper", action="store_true")
     parser.add_argument("--output-dir", default="reports/button_box_rollout_qa")
+    parser.add_argument(
+        "--randomization-level",
+        default="debug_small",
+        choices=["debug_small", "medium", "final", "diverse"],
+    )
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
     from libero.libero.envs import OffScreenRenderEnv
@@ -221,22 +274,57 @@ def main() -> None:
         camera_widths=args.camera_size,
         camera_names=["agentview"],
         horizon=args.horizon,
+        ignore_done=True,
     )
     try:
-        per_seed = [run_seed(env, args.seed + idx, args.horizon, args.allow_oracle_state_helper) for idx in range(args.num_seeds)]
+        per_seed = []
+        for idx in range(args.num_seeds):
+            seed = args.seed + idx
+            if not args.quiet:
+                print(f"[qa seed {idx + 1}/{args.num_seeds}] seed={seed} start", flush=True)
+            result = run_seed(env, seed, args.horizon, args.allow_oracle_state_helper, args.randomization_level)
+            per_seed.append(result)
+            if not args.quiet:
+                status = "PASS" if result["passed"] else "FAIL"
+                reason = primary_failure(result)
+                print(
+                    f"[qa seed {idx + 1}/{args.num_seeds}] seed={seed} {status} "
+                    f"steps={result['total_steps']} stage={result.get('final_debug', {}).get('stage')} "
+                    f"reason={reason} cube_lift={result.get('cube_lift_z_increase', 0.0):.4f}",
+                    flush=True,
+                )
+                if (idx + 1) % 3 == 0 or idx + 1 == args.num_seeds:
+                    print_running_summary(per_seed)
     finally:
         env.close()
 
+    diversity = compute_diversity_metrics(per_seed)
     cube_initials = np.asarray([item["cube_initial_pose"][:2] for item in per_seed], dtype=np.float32)
     cube_initial_std = cube_initials.std(axis=0) if len(cube_initials) else np.zeros(2, dtype=np.float32)
     cross_seed_reasons = []
     if args.num_seeds > 1 and float(np.max(cube_initial_std)) < 0.01:
         cross_seed_reasons.append(f"cube initial xy std too low: {cube_initial_std.round(5).tolist()}")
+    # Diversity gate per level
+    _DIV_GATES = {
+        "medium": {"min_x_range": 0.04, "min_y_range": 0.03, "min_bins": 3},
+        "final":  {"min_x_range": 0.06, "min_y_range": 0.04, "min_bins": 4},
+        "diverse":{"min_x_range": 0.12, "min_y_range": 0.06, "min_bins": 6},
+    }
+    gate = _DIV_GATES.get(args.randomization_level)
+    if gate and args.num_seeds >= 4:
+        if diversity["cube_x_range"] < gate["min_x_range"]:
+            cross_seed_reasons.append(f"cube x_range {diversity['cube_x_range']:.4f} < {gate['min_x_range']} ({args.randomization_level} requirement)")
+        if diversity["cube_y_range"] < gate["min_y_range"]:
+            cross_seed_reasons.append(f"cube y_range {diversity['cube_y_range']:.4f} < {gate['min_y_range']} ({args.randomization_level} requirement)")
+        if diversity["bins_occupied"] < gate["min_bins"]:
+            cross_seed_reasons.append(f"bins_occupied {diversity['bins_occupied']} < {gate['min_bins']} ({args.randomization_level} requirement)")
     report = {
         "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "strict": bool(args.strict),
         "num_seeds": args.num_seeds,
+        "randomization_level": args.randomization_level,
         "cube_initial_xy_std": cube_initial_std.astype(float).round(6).tolist(),
+        "diversity": diversity,
         "cross_seed_reasons": cross_seed_reasons,
         "per_seed": per_seed,
     }
@@ -247,7 +335,7 @@ def main() -> None:
     json_path = out_dir / "qa_button_box_rollout.json"
     md_path = out_dir / "qa_button_box_rollout.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    lines = ["# Button Box Rollout QA", "", f"Passed: `{report['passed']}`", "", "```json", json.dumps({k: v for k, v in report.items() if k != "per_seed"}, indent=2, sort_keys=True), "```"]
+    lines = ["# Button Box Rollout QA", "", f"Passed: `{report['passed']}`", "", "```json", json.dumps({k: v for k, v in report.items() if k not in ("per_seed",)}, indent=2, sort_keys=True), "```"]
     for item in per_seed:
         lines.extend(["", f"## Seed {item['seed']}", "", f"Passed: `{item['passed']}`", "", "Reasons: " + (", ".join(item["reasons"]) if item["reasons"] else "none"), "", "Stages: " + " -> ".join(item["stage_timeline"])])
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")

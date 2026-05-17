@@ -2,19 +2,26 @@
   <worldbody>
     <body>
       <body name="object">
-        <site type="box" pos="0 0 0.018" quat="1 0 0 0" size="0.125 0.125 0.018" rgba="0.0 0.8 0.1 0.0" name="contain_region" group="0" />
-        <geom type="box" pos="0 0 0.004" size="0.135 0.135 0.004" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
-        <geom type="box" pos="0.131 0 0.020" size="0.004 0.135 0.020" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
-        <geom type="box" pos="-0.131 0 0.020" size="0.004 0.135 0.020" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
-        <geom type="box" pos="0 0.131 0.020" size="0.135 0.004 0.020" rgba="0.85 0.85 0.80 1" group="1" contype="0" conaffinity="0" />
-        <geom type="box" pos="0 0 0.004" size="0.135 0.135 0.004" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
-        <geom type="box" pos="0.131 0 0.020" size="0.004 0.135 0.020" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
-        <geom type="box" pos="-0.131 0 0.020" size="0.004 0.135 0.020" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
-        <geom type="box" pos="0 0.131 0.020" size="0.135 0.004 0.020" rgba="0.85 0.85 0.80 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <!-- contain_region site: transparent, used by BDDL goal check -->
+        <site type="box" pos="0 0 0.018" quat="1 0 0 0" size="0.085 0.085 0.018" rgba="0.0 0.8 0.1 0.0" name="contain_region" group="0" />
+        <!-- Visual geoms (group=1): opaque, no collision -->
+        <!-- floor -->
+        <geom type="box" pos="0 0 0.004" size="0.095 0.095 0.004" rgba="0.75 0.55 0.35 1" group="1" contype="0" conaffinity="0" />
+        <!-- walls: +x, -x, +y, -y (full 4-wall box) -->
+        <geom type="box" pos="0.088 0 0.033" size="0.007 0.095 0.025" rgba="0.88 0.82 0.70 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="-0.088 0 0.033" size="0.007 0.095 0.025" rgba="0.88 0.82 0.70 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="0 0.088 0.033" size="0.081 0.007 0.025" rgba="0.88 0.82 0.70 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" pos="0 -0.088 0.033" size="0.081 0.007 0.025" rgba="0.88 0.82 0.70 1" group="1" contype="0" conaffinity="0" />
+        <!-- Collision geoms (group=0): physics, semi-transparent -->
+        <geom type="box" pos="0 0 0.004" size="0.095 0.095 0.004" rgba="0.75 0.55 0.35 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="0.088 0 0.033" size="0.007 0.095 0.025" rgba="0.88 0.82 0.70 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="-0.088 0 0.033" size="0.007 0.095 0.025" rgba="0.88 0.82 0.70 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="0 0.088 0.033" size="0.081 0.007 0.025" rgba="0.88 0.82 0.70 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
+        <geom type="box" pos="0 -0.088 0.033" size="0.081 0.007 0.025" rgba="0.88 0.82 0.70 0.15" density="5000" friction="4.0 1.0 0.1" group="0" />
       </body>
       <site rgba="0 0 0 0" size="0.005" pos="0 0 0.000" name="bottom_site" group="0" />
-      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.040" name="top_site" group="0" />
-      <site rgba="0 0 0 0" size="0.005" pos="0.135 0.135 0.020" name="horizontal_radius_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.058" name="top_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0.095 0.095 0.033" name="horizontal_radius_site" group="0" />
     </body>
   </worldbody>
 </mujoco>

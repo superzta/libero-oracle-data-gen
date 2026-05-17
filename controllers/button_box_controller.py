@@ -54,16 +54,16 @@ class ButtonBoxController(BaseFSMController):
         self.grasp_retry_count = 0
         self.max_grasp_retries = int(self.metadata.get("max_grasp_retries", 2))
         self.grasp_retry_xy_recompute = bool(self.metadata.get("grasp_retry_xy_recompute", True))
-        self.cube_grasp_z_offset = float(self.metadata.get("cube_grasp_z_offset", 0.05))
-        self.cube_pregrasp_z_offset = float(self.metadata.get("cube_pregrasp_z_offset", 0.18))
+        self.cube_grasp_z_offset = float(self.metadata.get("cube_grasp_z_offset", 0.020))
+        self.cube_pregrasp_z_offset = float(self.metadata.get("cube_pregrasp_z_offset", 0.10))
         self.close_hold_steps = int(self.metadata.get("close_hold_steps", self.metadata.get("close_gripper_steps", 60)))
         self.lift_height = float(self.metadata.get("lift_height", self.metadata.get("cube_lift_z_offset", 0.14)))
         self.lift_x_offset = float(self.metadata.get("lift_x_offset", 0.0))
         self.lift_y_offset = float(self.metadata.get("lift_y_offset", 0.0))
-        self.descent_max_delta = float(self.metadata.get("descent_max_delta", 0.05))
+        self.descent_max_delta = float(self.metadata.get("descent_max_delta", 0.10))
         self.lift_max_delta = float(self.metadata.get("lift_max_delta", 0.05))
         self.cube_lift_success_threshold = float(self.metadata.get("cube_lift_success_threshold", self.metadata.get("min_lift_height", 0.04)))
-        self.cube_lift_continue_threshold = float(self.metadata.get("cube_lift_continue_threshold", 0.04))
+        self.cube_lift_continue_threshold = float(self.metadata.get("cube_lift_continue_threshold", 0.060))
         self.grasp_y_offset = float(self.metadata.get("grasp_y_offset", 0.0))
         self.grasp_x_offset = float(self.metadata.get("grasp_x_offset", 0.0))
         self.active_cube_grasp_pos: Optional[np.ndarray] = None
@@ -138,8 +138,8 @@ class ButtonBoxController(BaseFSMController):
         elif self.stage == "DESCEND_TO_CUBE":
             target = cube_grasp
             action = self._bounded_move(obs, target, gripper=-1.0, max_delta=self.descent_max_delta)
-            close_enough_z = self.get_eef_pos(obs)[2] - cube[2] <= self.cube_grasp_z_offset + 0.005
-            if self.reached(obs, target, tol=0.035) or close_enough_z or self.stage_step >= 160:
+            close_enough_z = self.get_eef_pos(obs)[2] - cube[2] <= self.cube_grasp_z_offset + 0.015
+            if close_enough_z or self.stage_step >= 160:
                 self.next_stage("CLOSE_GRIPPER_AND_WAIT", "cube_grasp_pose_reached")
         elif self.stage == "CLOSE_GRIPPER_AND_WAIT":
             target = cube_grasp
@@ -171,12 +171,12 @@ class ButtonBoxController(BaseFSMController):
         elif self.stage == "MOVE_ABOVE_BOX":
             target = box_above
             action = self.move_to_target_pos(obs, target, gripper=1.0)
-            if self.reached(obs, target, tol=0.045) or self.stage_step >= 95:
+            if self.reached(obs, target, tol=0.045) or self.stage_step >= int(self.metadata.get("move_above_box_timeout_steps", 320)):
                 self.next_stage("LOWER_TO_BOX", "box_prepose_reached")
         elif self.stage == "LOWER_TO_BOX":
             target = box_place
             action = self.move_to_target_pos(obs, target, gripper=1.0)
-            if self.reached(obs, target, tol=0.035) or self.stage_step >= 110:
+            if self.reached(obs, target, tol=0.035) or self.stage_step >= int(self.metadata.get("lower_to_box_timeout_steps", 220)):
                 self.next_stage("OPEN_GRIPPER", "place_pose_reached")
         elif self.stage == "OPEN_GRIPPER":
             target = box_place
@@ -256,7 +256,7 @@ class ButtonBoxController(BaseFSMController):
         cube = self._object_pos(obs, self.cube_name)
         box = self._object_pos(obs, self.box_name)
         moved = np.linalg.norm(cube[:2] - self.initial_cube_pos[:2]) >= float(self.metadata.get("min_cube_move", 0.018))
-        in_box_xy = np.linalg.norm(cube[:2] - box[:2]) <= float(self.metadata.get("box_xy_tolerance", 0.145))
+        in_box_xy = np.linalg.norm(cube[:2] - box[:2]) <= float(self.metadata.get("box_xy_tolerance", 0.095))
         in_box_z = box[2] - 0.025 <= cube[2] <= box[2] + float(self.metadata.get("box_z_tolerance", 0.17))
         button_drift = np.linalg.norm(self._object_pos(obs, self.button_name)[:2] - self.initial_button_pos[:2])
         return bool(

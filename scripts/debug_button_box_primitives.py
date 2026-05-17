@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 import time
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -24,8 +25,8 @@ configure_runtime_env()
 BUTTON = "red_button_1"
 CUBE = "blue_cube_1"
 BOX = "open_box_1"
-CUBE_ASSET = "single_geom_blue_block_12x7x18cm"
-CUBE_SIZE_M = [0.12, 0.07, 0.18]
+CUBE_ASSET = "blue_cube_5p5cm_cube"
+CUBE_SIZE_M = [0.055, 0.055, 0.055]
 
 
 @dataclass
@@ -33,7 +34,7 @@ class PrimitiveConfig:
     pos_gain: float = 20.0
     max_delta: float = 0.18
     approach_z: float = 0.18
-    grasp_z: float = 0.05
+    grasp_z: float = 0.020
     lift_z: float = 0.14
     lift_x_offset: float = 0.0
     lift_y_offset: float = 0.0
@@ -110,6 +111,7 @@ def wait_action(gripper: float) -> np.ndarray:
 
 def step_env(env, obs, action, trace: List[Dict[str, Any]], stage: str, target: Optional[np.ndarray], step_idx: int):
     obs, reward, done, info = env.step(action)
+    done = False
     cube = object_pos(env, obs, CUBE)
     box = object_pos(env, obs, BOX)
     eef = eef_pos(obs)
@@ -203,10 +205,10 @@ def run_place(env, obs, cfg: PrimitiveConfig, trace: List[Dict[str, Any]], step_
     box = object_pos(env, obs, BOX).copy()
     above_box = box + np.array([0.0, 0.0, cfg.box_above_z], dtype=np.float32)
     release = box + np.array([0.0, -0.005, cfg.release_z], dtype=np.float32)
-    obs, step_idx, done = move_to(env, obs, above_box, 1.0, cfg, trace, "MOVE_ABOVE_BOX", step_idx, max_steps=120, max_delta=0.035)
+    obs, step_idx, done = move_to(env, obs, above_box, 1.0, cfg, trace, "MOVE_ABOVE_BOX", step_idx, max_steps=320, max_delta=0.035)
     if done:
         return obs, step_idx, done
-    obs, step_idx, done = move_to(env, obs, release, 1.0, cfg, trace, "LOWER_TO_BOX", step_idx, max_steps=100, max_delta=0.02)
+    obs, step_idx, done = move_to(env, obs, release, 1.0, cfg, trace, "LOWER_TO_BOX", step_idx, max_steps=220, max_delta=0.02)
     if done:
         return obs, step_idx, done
     obs, step_idx, done = hold(env, obs, 18, -1.0, trace, "OPEN_GRIPPER", step_idx)
@@ -353,14 +355,14 @@ def classify_failure(mode: str, trace: List[Dict[str, Any]], initial_cube: np.nd
     return ""
 
 
-def run_seed(env, mode: str, seed: int, cfg: PrimitiveConfig) -> Dict[str, Any]:
+def run_seed(env, mode: str, seed: int, cfg: PrimitiveConfig, randomization_level: str = "debug_small") -> Dict[str, Any]:
     env.seed(seed)
     obs = env.reset()
     try:
         env.env.sim.forward()
     except Exception:
         pass
-    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=cfg.reset_settle_steps)
+    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=cfg.reset_settle_steps, randomization_level=randomization_level)
     initial_cube = object_pos(env, obs, CUBE).copy()
     initial_box = object_pos(env, obs, BOX).copy()
     trace: List[Dict[str, Any]] = []
@@ -443,6 +445,20 @@ def run_seed(env, mode: str, seed: int, cfg: PrimitiveConfig) -> Dict[str, Any]:
     }
 
 
+def print_running_summary(per_seed: List[Dict[str, Any]]) -> None:
+    completed = len(per_seed)
+    pass_count = sum(1 for item in per_seed if item["passed"])
+    fail_count = completed - pass_count
+    failures = Counter(item["failure_reason"] or "passed" for item in per_seed if not item["passed"])
+    common = failures.most_common(1)[0][0] if failures else "none"
+    rate = pass_count / completed if completed else 0.0
+    print(
+        f"running: completed={completed} pass={pass_count} fail={fail_count} "
+        f"success_rate={rate:.3f} most_common_failure={common}",
+        flush=True,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["press_only", "pick_lift_only", "place_only", "full"], required=True)
@@ -458,6 +474,12 @@ def main() -> None:
     parser.add_argument("--lift-max-delta", type=float, default=None)
     parser.add_argument("--grasp-x-offset", type=float, default=None)
     parser.add_argument("--grasp-y-offset", type=float, default=None)
+    parser.add_argument(
+        "--randomization-level",
+        default="debug_small",
+        choices=["debug_small", "medium", "final", "diverse"],
+    )
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
     from libero.libero.envs import OffScreenRenderEnv
@@ -483,21 +505,29 @@ def main() -> None:
         camera_widths=args.camera_size,
         camera_names=["agentview"],
         horizon=1400,
+        ignore_done=True,
     )
     try:
         per_seed = []
         for idx in range(args.num_seeds):
-            result = run_seed(env, args.mode, args.seed + idx, cfg)
+            seed = args.seed + idx
+            if not args.quiet:
+                print(f"[primitive {args.mode} seed {idx + 1}/{args.num_seeds}] seed={seed} start", flush=True)
+            result = run_seed(env, args.mode, seed, cfg, randomization_level=args.randomization_level)
             per_seed.append(result)
-            print(
-                "seed={seed} passed={passed} reason={reason} cube_z_lift={lift:.4f}".format(
-                    seed=result["seed"],
-                    passed=result["passed"],
-                    reason=result["failure_reason"] or "ok",
-                    lift=float(result.get("cube_z_increase_after_lift") or 0.0),
-                ),
-                flush=True,
-            )
+            if not args.quiet:
+                status = "PASS" if result["passed"] else "FAIL"
+                print(
+                    "  seed={seed} {status} reason={reason} cube_z_lift={lift:.4f}".format(
+                        seed=result["seed"],
+                        status=status,
+                        reason=result["failure_reason"] or "ok",
+                        lift=float(result.get("cube_z_increase_after_lift") or 0.0),
+                    ),
+                    flush=True,
+                )
+                if (idx + 1) % 3 == 0 or idx + 1 == args.num_seeds:
+                    print_running_summary(per_seed)
     finally:
         env.close()
 

@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -38,6 +39,7 @@ def make_env(args):
         camera_widths=args.camera_size,
         camera_names=args.camera_names.split(","),
         horizon=args.horizon,
+        ignore_done=True,
     )
 
 
@@ -78,7 +80,11 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
     except Exception:
         pass
     if args.custom_task == "button_box":
-        obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20)
+        obs = apply_button_box_reset_randomization(
+            env, obs, seed,
+            settle_steps=20,
+            randomization_level=args.randomization_level,
+        )
     controller.reset(env, obs, metadata)
     observations: Dict[str, List[np.ndarray]] = {key: [] for key in numeric_obs(obs)}
     actions, rewards, dones, env_states, debug = [], [], [], [], []
@@ -124,11 +130,18 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             if final_hold_remaining <= 0:
                 break
             final_hold_remaining -= 1
-        if done:
+        if done and args.custom_task != "button_box":
             failure_reason = "env_done"
             break
 
     final_obs = numeric_obs(obs)
+    episode_length = len(actions)
+    video_frame_count = len(frames)
+    # video_stride=1 means every step has a corresponding frame
+    video_stride = 1
+    if video_frame_count > 0 and abs(video_frame_count - episode_length) > 2:
+        video_stride = max(1, round(episode_length / video_frame_count))
+
     return {
         "success": success,
         "failure_reason": failure_reason,
@@ -146,8 +159,11 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "attempt": attempt,
             "success": success,
             "failure_reason": failure_reason,
-            "episode_length": len(actions),
+            "episode_length": episode_length,
+            "video_frame_count": video_frame_count,
+            "video_stride": video_stride,
             "stage_trace": stage_trace,
+            "randomization_level": args.randomization_level,
             "initial_positions": {
                 key: value.reshape(-1).astype(float).tolist()
                 for key, value in initial_obs.items()
@@ -186,6 +202,39 @@ def save_video(path: Path, frames: List[np.ndarray], fps: int = 20) -> None:
     imageio.mimsave(path, frames, fps=fps)
 
 
+def save_run_manifest(
+    out_dir: Path,
+    video_dir: Path,
+    args,
+    language: str,
+    success_hdf5_files: List[str],
+    success_video_files: List[str],
+    seeds: List[int],
+    timestamp: str,
+) -> None:
+    manifest = {
+        "timestamp": timestamp,
+        "dataset_dir": str(out_dir),
+        "video_dir": str(video_dir) if args.save_video else None,
+        "task_name": Path(args.bddl_path).stem,
+        "task_language": language,
+        "bddl_file": args.bddl_path,
+        "controller": args.controller,
+        "camera_size": args.camera_size,
+        "horizon": args.horizon,
+        "final_hold_steps": args.final_hold_steps,
+        "randomization_level": args.randomization_level,
+        "seed_start": args.seed,
+        "seed_list": seeds,
+        "success_hdf5_files": success_hdf5_files,
+        "success_video_files": success_video_files if args.save_video else [],
+    }
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "run_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", default="libero_10")
@@ -211,6 +260,13 @@ def main() -> None:
     parser.add_argument("--video-camera", default="agentview")
     parser.add_argument("--output-dir", default="datasets")
     parser.add_argument("--keep-failures", action="store_true")
+    parser.add_argument(
+        "--randomization-level",
+        default="debug_small",
+        choices=["debug_small", "medium", "final", "diverse"],
+        help="Initial state randomization level for button_box task.",
+    )
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
     if args.min_horizon and args.horizon < args.min_horizon:
         args.horizon = args.min_horizon
@@ -219,8 +275,8 @@ def main() -> None:
 
     args.bddl_path = resolve_bddl_path(args.task_name, args.suite, args.task_id, args.bddl_file, args.custom_task)
     language = get_task_language(args.bddl_path)
-    run_id = time.strftime("%Y%m%d_%H%M%S")
-    out_dir = Path(args.output_dir) / f"{Path(args.bddl_path).stem}_{args.controller}_{run_id}"
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    out_dir = Path(args.output_dir) / f"{Path(args.bddl_path).stem}_{args.controller}_{timestamp}"
     video_dir = Path("videos") / out_dir.name
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
@@ -240,10 +296,14 @@ def main() -> None:
     attempts = 0
     seeds = []
     failure_reasons: Dict[str, int] = {}
+    success_hdf5_files: List[str] = []
+    success_video_files: List[str] = []
 
     try:
         while successes < args.num_successes and attempts < args.max_attempts:
             seed = args.seed + attempts
+            if not args.quiet:
+                print(f"[collect attempt {attempts + 1}/{args.max_attempts}] seed={seed} start", flush=True)
             episode = collect_one(env, controller, args, seed, attempts, {**base_metadata, **controller_metadata})
             attempts += 1
             seeds.append(seed)
@@ -251,13 +311,43 @@ def main() -> None:
                 successes += 1
                 ep_name = f"success_{successes:03d}_seed_{seed}.hdf5"
                 save_episode_hdf5(out_dir / ep_name, episode)
+                success_hdf5_files.append(str(out_dir / ep_name))
                 if args.save_video:
-                    save_video(video_dir / ep_name.replace(".hdf5", ".mp4"), episode["frames"])
+                    video_path = video_dir / ep_name.replace(".hdf5", ".mp4")
+                    save_video(video_path, episode["frames"])
+                    success_video_files.append(str(video_path))
+                # Warn if frame count doesn't match episode length without a known stride
+                ep_len = episode["metadata"]["episode_length"]
+                vf_count = episode["metadata"]["video_frame_count"]
+                v_stride = episode["metadata"]["video_stride"]
+                if args.save_video and vf_count > 0 and abs(vf_count - ep_len) > 2 and v_stride == 1:
+                    print(
+                        f"WARNING: success_{successes:03d}_seed_{seed}: "
+                        f"episode_length={ep_len} but video_frames={vf_count} "
+                        f"with video_stride=1 — mismatch without known stride"
+                    )
             else:
                 failure_reasons[episode["failure_reason"]] = failure_reasons.get(episode["failure_reason"], 0) + 1
                 if args.keep_failures:
                     save_episode_hdf5(out_dir / "failures" / f"attempt_{attempts:04d}_seed_{seed}.hdf5", episode)
-            print(f"attempt={attempts} seed={seed} success={episode['success']} successes={successes}/{args.num_successes}")
+            if not args.quiet:
+                status = "PASS" if episode["success"] else "FAIL"
+                reason = episode["failure_reason"] or "ok"
+                print(
+                    f"[collect attempt {attempts}/{args.max_attempts}] seed={seed} {status} "
+                    f"successes={successes}/{args.num_successes} reason={reason}",
+                    flush=True,
+                )
+                if attempts % 3 == 0 or episode["success"] or attempts == args.max_attempts:
+                    fail_count = attempts - successes
+                    rate = successes / attempts if attempts else 0.0
+                    common = Counter(failure_reasons).most_common(1)
+                    common_reason = common[0][0] if common else "none"
+                    print(
+                        f"running: attempts={attempts} pass={successes} fail={fail_count} "
+                        f"success_rate={rate:.3f} most_common_failure={common_reason}",
+                        flush=True,
+                    )
     finally:
         env.close()
 
@@ -270,9 +360,21 @@ def main() -> None:
         "success_rate": successes / attempts if attempts else 0.0,
         "seeds": seeds,
         "failure_reasons": failure_reasons,
+        "randomization_level": args.randomization_level,
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+
+    save_run_manifest(
+        out_dir=out_dir,
+        video_dir=video_dir,
+        args=args,
+        language=language,
+        success_hdf5_files=success_hdf5_files,
+        success_video_files=success_video_files,
+        seeds=seeds,
+        timestamp=timestamp,
+    )
     print(json.dumps(summary, indent=2, sort_keys=True))
 
 

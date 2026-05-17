@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -35,17 +35,47 @@ def load_episode(path: Path) -> Dict:
         }
 
 
+def get_video_frame_count(video_path: Path) -> Optional[int]:
+    try:
+        import imageio.v2 as imageio
+
+        reader = imageio.get_reader(video_path)
+        count = sum(1 for _ in reader)
+        reader.close()
+        return count
+    except Exception:
+        return None
+
+
+def find_video_dir(dataset_dir: Path, video_dir_arg: Optional[str]) -> Optional[Path]:
+    if video_dir_arg:
+        return Path(video_dir_arg)
+    manifest_path = dataset_dir / "run_manifest.json"
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text())
+        vd = manifest.get("video_dir")
+        if vd:
+            return Path(vd)
+    candidate = Path("videos") / dataset_dir.name
+    if candidate.exists():
+        return candidate
+    return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset_dir")
     parser.add_argument("--expected-successes", type=int, default=100)
     parser.add_argument("--required-obs-key", action="append", default=["robot0_eef_pos", "robot0_proprio-state"])
     parser.add_argument("--allow-oracle-state-helper", action="store_true", help="Permit episodes marked as helper-assisted.")
+    parser.add_argument("--video-dir", default=None, help="Directory containing success_*.mp4 videos for frame count validation.")
     args = parser.parse_args()
 
     dataset_dir = Path(args.dataset_dir)
     episodes = [load_episode(path) for path in sorted(dataset_dir.glob("success_*.hdf5"))]
     errors: List[str] = []
+    warnings: List[str] = []
+
     if len(episodes) != args.expected_successes:
         errors.append(f"expected {args.expected_successes} successful demos, found {len(episodes)}")
     seeds = [ep["metadata"].get("seed") for ep in episodes]
@@ -85,6 +115,34 @@ def main() -> None:
     if args.expected_successes > 1 and cube_initials and not varied_cube_initial_states:
         errors.append("blue cube initial positions do not vary across successful episodes")
 
+    # Video frame count consistency check
+    video_dir = find_video_dir(dataset_dir, args.video_dir)
+    video_check_results: List[Dict] = []
+    if video_dir is not None and video_dir.exists():
+        for ep in episodes:
+            ep_hdf5 = Path(ep["path"])
+            video_path = video_dir / (ep_hdf5.stem + ".mp4")
+            if not video_path.exists():
+                warnings.append(f"video not found for {ep_hdf5.name}: expected {video_path}")
+                continue
+            frame_count = get_video_frame_count(video_path)
+            ep_len = ep["metadata"].get("episode_length", 0)
+            known_stride = ep["metadata"].get("video_stride", 1)
+            mismatch = frame_count is not None and abs(frame_count - ep_len) > 2
+            if mismatch and known_stride == 1:
+                warnings.append(
+                    f"{ep_hdf5.name}: episode_length={ep_len} but video_frames={frame_count} "
+                    f"with video_stride=1 — mismatch without known stride"
+                )
+            video_check_results.append({
+                "hdf5": ep_hdf5.name,
+                "video": video_path.name,
+                "episode_length": ep_len,
+                "video_frame_count": frame_count,
+                "video_stride": known_stride,
+                "mismatch": mismatch and known_stride == 1,
+            })
+
     report = {
         "dataset_dir": str(dataset_dir),
         "num_successes": len(episodes),
@@ -92,6 +150,8 @@ def main() -> None:
         "varied_initial_states": varied_initial_states,
         "varied_cube_initial_states": varied_cube_initial_states,
         "errors": errors,
+        "warnings": warnings,
+        "video_frame_checks": video_check_results,
         "valid": not errors,
     }
     print(json.dumps(report, indent=2, sort_keys=True))

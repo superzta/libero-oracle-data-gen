@@ -25,8 +25,12 @@ logs/
 
 # Reports that are generated
 reports/*.png
+reports/*.jpg
 reports/*.pdf
 reports/*.csv
+
+# everything inside the reports directory
+reports/*
 
 # System
 .DS_Store
