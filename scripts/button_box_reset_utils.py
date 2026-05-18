@@ -53,19 +53,11 @@ _LEVEL_CONFIGS = {
         "button_jitter": 0.0,
     },
     "diverse_v2": {
-        # Continuous uniform sampling across the full visible workspace area.
-        # Each object is placed independently; cube position is rejection-sampled
-        # to avoid physical overlap with box and button.
+        # All three objects placed uniformly at random anywhere on the visible table.
+        # Episodes where the arm can't reach an object just fail and get retried.
         "mode": "continuous",
-        # Cube: full visible area forward of box, controller-verified feasible
-        "cube_x_range": (-0.120, 0.120),
-        "cube_y_range": (-0.090, 0.015),
-        # Box: back placement zone; y-separation from cube band ensures no collision
-        "box_x_range":  (-0.050, 0.150),
-        "box_y_range":  ( 0.155, 0.230),
-        # Button: full front strip across visible table area
-        "button_x_range": (-0.150, 0.060),
-        "button_y_range": (-0.180, -0.075),
+        "table_x_range": (-0.150, 0.150),
+        "table_y_range": (-0.200, 0.250),
     },
 }
 
@@ -134,50 +126,49 @@ def compute_reset_positions(
 
     # ── Continuous uniform-sampling format ───────────────────────────────────
     if cfg.get("mode") == "continuous":
-        # Box: sample uniformly
-        bx = float(rng.uniform(*cfg["box_x_range"]))
-        by = float(rng.uniform(*cfg["box_y_range"]))
+        x_lo, x_hi = cfg["table_x_range"]
+        y_lo, y_hi = cfg["table_y_range"]
+
+        # Box: anywhere on the table
+        bx = float(rng.uniform(x_lo, x_hi))
+        by = float(rng.uniform(y_lo, y_hi))
         box_xy = np.asarray([bx, by], dtype=np.float64)
         box_xyz = np.asarray([bx, by, BOX_FIXED_POS[2]], dtype=np.float64)
 
-        # Button: sample uniformly (naturally separated from box by y-band)
-        btx = float(rng.uniform(*cfg["button_x_range"]))
-        bty = float(rng.uniform(*cfg["button_y_range"]))
-        btn_xy = np.asarray([btx, bty], dtype=np.float64)
-        button_xyz = np.asarray([btx, bty, BUTTON_FIXED_POS[2]], dtype=np.float64)
+        # Button: anywhere on the table, must not overlap box footprint
+        btn_xy = np.asarray([-0.100, -0.150], dtype=np.float64)
+        for _ in range(128):
+            btx = float(rng.uniform(x_lo, x_hi))
+            bty = float(rng.uniform(y_lo, y_hi))
+            candidate = np.asarray([btx, bty], dtype=np.float64)
+            if np.linalg.norm(candidate - box_xy) >= 0.150:
+                btn_xy = candidate
+                break
+        button_xyz = np.asarray([btn_xy[0], btn_xy[1], BUTTON_FIXED_POS[2]], dtype=np.float64)
 
-        # Cube: rejection-sample to avoid box/button overlaps
-        cx_lo, cx_hi = cfg["cube_x_range"]
-        cy_lo, cy_hi = cfg["cube_y_range"]
+        # Cube: anywhere on the table, must not overlap box interior or button
         cube_xy = np.asarray([0.0, -0.050], dtype=np.float64)
-        for attempt in range(128):
-            cx = float(rng.uniform(cx_lo, cx_hi))
-            cy = float(rng.uniform(cy_lo, cy_hi))
+        for _ in range(128):
+            cx = float(rng.uniform(x_lo, x_hi))
+            cy = float(rng.uniform(y_lo, y_hi))
             candidate = np.asarray([cx, cy], dtype=np.float64)
             if not _cube_box_overlap(candidate, box_xy) and not _cube_button_overlap(candidate, btn_xy, 0.07):
                 cube_xy = candidate
                 break
         cube_xyz = np.asarray([cube_xy[0], cube_xy[1], CUBE_FIXED_Z], dtype=np.float64)
 
-        # Post-hoc bin IDs for metadata/QA tracking (3×2 cube grid, 4 box zones, 4 btn zones)
-        xi = min(2, int((cube_xy[0] - cx_lo) / (cx_hi - cx_lo) * 3))
-        yi = min(1, int((cube_xy[1] - cy_lo) / (cy_hi - cy_lo) * 2))
+        # Post-hoc bin IDs (3×2 grid over the table area) for metadata/QA tracking
+        xi = min(2, int((cube_xy[0] - x_lo) / (x_hi - x_lo) * 3))
+        yi = min(1, int((cube_xy[1] - y_lo) / (y_hi - y_lo) * 2))
         cube_bin_id = xi + yi * 3
 
-        bx_mid = (cfg["box_x_range"][0] + cfg["box_x_range"][1]) / 2
-        by_mid = (cfg["box_y_range"][0] + cfg["box_y_range"][1]) / 2
-        if by > by_mid + 0.010:
-            box_bin_id = 3
-        elif bx < bx_mid - 0.030:
-            box_bin_id = 0
-        elif bx > bx_mid + 0.030:
-            box_bin_id = 2
-        else:
-            box_bin_id = 1
+        bx_mid = (x_lo + x_hi) / 2
+        by_mid = (y_lo + y_hi) / 2
+        box_bin_id = (0 if bx < bx_mid else 1) + (0 if by < by_mid else 2)
 
-        btx_mid = (cfg["button_x_range"][0] + cfg["button_x_range"][1]) / 2
-        bty_mid = (cfg["button_y_range"][0] + cfg["button_y_range"][1]) / 2
-        button_bin_id = (0 if btx < btx_mid else 1) + (0 if bty < bty_mid else 2)
+        btx_mid = bx_mid
+        bty_mid = by_mid
+        button_bin_id = (0 if btn_xy[0] < btx_mid else 1) + (0 if btn_xy[1] < bty_mid else 2)
 
         return cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id
 

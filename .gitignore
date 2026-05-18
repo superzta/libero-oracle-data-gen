@@ -23,14 +23,10 @@ logs/
 *.npy
 *.npz
 
-# Reports that are generated
-reports/*.png
-reports/*.jpg
-reports/*.pdf
-reports/*.csv
-
-# everything inside the reports directory
+# Ignore all generated report files; only keep manually-authored docs
 reports/*
+!reports/existing_libero_tasks.txt
+!reports/libero_structure.md
 
 # System
 .DS_Store
