@@ -362,7 +362,7 @@ def run_seed(env, mode: str, seed: int, cfg: PrimitiveConfig, randomization_leve
         env.env.sim.forward()
     except Exception:
         pass
-    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=cfg.reset_settle_steps, randomization_level=randomization_level)
+    obs, _reset_info = apply_button_box_reset_randomization(env, obs, seed, settle_steps=cfg.reset_settle_steps, randomization_level=randomization_level)
     initial_cube = object_pos(env, obs, CUBE).copy()
     initial_box = object_pos(env, obs, BOX).copy()
     trace: List[Dict[str, Any]] = []
@@ -477,7 +477,7 @@ def main() -> None:
     parser.add_argument(
         "--randomization-level",
         default="debug_small",
-        choices=["debug_small", "medium", "final", "diverse"],
+        choices=["debug_small", "medium", "final", "diverse", "diverse_v2"],
     )
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()

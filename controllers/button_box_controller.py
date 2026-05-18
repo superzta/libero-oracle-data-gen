@@ -46,6 +46,7 @@ class ButtonBoxController(BaseFSMController):
         self.oracle_helper_used = False
         self.direct_pose_writes_during_rollout = 0
         self.button_pressed = False
+        self.button_geometrically_pressed = False
         self.button_press_consecutive = 0
         self.gripper_opened = False
         self.open_gripper_step: Optional[int] = None
@@ -105,25 +106,25 @@ class ButtonBoxController(BaseFSMController):
         if self.stage == "MOVE_ABOVE_BUTTON":
             target = button_above
             action = self.move_to_target_pos(obs, target, gripper=-1.0)
-            if self.reached(obs, target, tol=0.04) or self.stage_step >= 45:
+            if self.reached(obs, target, tol=0.04) or self.stage_step >= int(self.metadata.get("move_above_button_timeout_steps", 80)):
                 self.next_stage("PRESS_BUTTON", "button_prepose_reached")
         elif self.stage == "PRESS_BUTTON":
             target = press_pose
-            action = self.move_to_target_pos(obs, target, gripper=-1.0)
+            action = self.move_to_target_pos(obs, target, gripper=1.0)
             if self._button_press_geometry(obs, button):
                 self.button_press_consecutive += 1
             else:
                 self.button_press_consecutive = 0
-            if self.button_press_consecutive >= int(self.metadata.get("button_press_required_steps", 4)):
+            if self.button_press_consecutive >= int(self.metadata.get("button_press_required_steps", 2)):
                 self.button_pressed = True
+                self.button_geometrically_pressed = True
                 self.next_stage("HOLD_BUTTON_PRESS", "geometric_press_detected")
-            elif self.stage_step >= 45:
+            elif self.stage_step >= int(self.metadata.get("press_button_timeout_steps", 80)):
                 self.next_stage("HOLD_BUTTON_PRESS", "press_timeout")
         elif self.stage == "HOLD_BUTTON_PRESS":
             target = press_pose
-            action = self.move_to_target_pos(obs, target, gripper=-1.0)
+            action = self.move_to_target_pos(obs, target, gripper=1.0)
             if self.stage_step >= int(self.metadata.get("hold_button_steps", 6)):
-                self.button_pressed = True
                 self.next_stage("RETRACT_FROM_BUTTON", "hold_complete")
         elif self.stage == "RETRACT_FROM_BUTTON":
             target = button_above
@@ -220,6 +221,7 @@ class ButtonBoxController(BaseFSMController):
         state.update(
             {
                 "button_pressed": self.button_pressed,
+                "button_geometrically_pressed": self.button_geometrically_pressed,
                 "button_press_consecutive": self.button_press_consecutive,
                 "gripper_opened": self.gripper_opened,
                 "open_gripper_step": self.open_gripper_step,
@@ -260,7 +262,7 @@ class ButtonBoxController(BaseFSMController):
         in_box_z = box[2] - 0.025 <= cube[2] <= box[2] + float(self.metadata.get("box_z_tolerance", 0.17))
         button_drift = np.linalg.norm(self._object_pos(obs, self.button_name)[:2] - self.initial_button_pos[:2])
         return bool(
-            self.button_pressed
+            self.button_geometrically_pressed
             and self.gripper_opened
             and self.settle_steps >= int(self.metadata.get("settle_steps", 30))
             and moved

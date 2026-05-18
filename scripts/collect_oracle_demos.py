@@ -79,8 +79,9 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
         env.env.sim.forward()
     except Exception:
         pass
+    reset_info: Dict[str, Any] = {}
     if args.custom_task == "button_box":
-        obs = apply_button_box_reset_randomization(
+        obs, reset_info = apply_button_box_reset_randomization(
             env, obs, seed,
             settle_steps=20,
             randomization_level=args.randomization_level,
@@ -164,6 +165,9 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "video_stride": video_stride,
             "stage_trace": stage_trace,
             "randomization_level": args.randomization_level,
+            "cube_bin_id": reset_info.get("cube_bin_id", -1),
+            "box_bin_id": reset_info.get("box_bin_id", -1),
+            "button_bin_id": reset_info.get("button_bin_id", -1),
             "initial_positions": {
                 key: value.reshape(-1).astype(float).tolist()
                 for key, value in initial_obs.items()
@@ -263,7 +267,7 @@ def main() -> None:
     parser.add_argument(
         "--randomization-level",
         default="debug_small",
-        choices=["debug_small", "medium", "final", "diverse"],
+        choices=["debug_small", "medium", "final", "diverse", "diverse_v2"],
         help="Initial state randomization level for button_box task.",
     )
     parser.add_argument("--quiet", action="store_true")

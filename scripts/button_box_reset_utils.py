@@ -52,6 +52,21 @@ _LEVEL_CONFIGS = {
         "box_jitter": 0.010,
         "button_jitter": 0.0,
     },
+    "diverse_v2": {
+        # Continuous uniform sampling across the full visible workspace area.
+        # Each object is placed independently; cube position is rejection-sampled
+        # to avoid physical overlap with box and button.
+        "mode": "continuous",
+        # Cube: full visible area forward of box, controller-verified feasible
+        "cube_x_range": (-0.120, 0.120),
+        "cube_y_range": (-0.090, 0.015),
+        # Box: back placement zone; y-separation from cube band ensures no collision
+        "box_x_range":  (-0.050, 0.150),
+        "box_y_range":  ( 0.155, 0.230),
+        # Button: full front strip across visible table area
+        "button_x_range": (-0.150, 0.060),
+        "button_y_range": (-0.180, -0.075),
+    },
 }
 
 
@@ -105,22 +120,135 @@ def _cube_button_overlap(cube_xy: np.ndarray, button_xy: np.ndarray, min_sep: fl
 def compute_reset_positions(
     seed: int,
     randomization_level: str = "debug_small",
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return (cube_xyz, box_xyz, button_xyz) for the given seed and level.
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, int, int]:
+    """Return (cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id).
 
-    Cube sampling uses stratified bins so different seeds land in different
-    spatial regions. Box and button jitter is uniform around fixed positions.
-    Cube positions that collide with box or button are rejected (up to 8 attempts).
+    Three config formats are supported:
+    - Continuous (diverse_v2): cfg["mode"]=="continuous", objects sampled uniformly from
+      per-object x/y ranges; cube rejection-sampled to avoid overlap with box/button.
+    - Stratified-bin: cfg["cube_bins"] list of (x_lo, x_hi, y_lo, y_hi) per bin.
+    - Legacy: cfg["cube_bins_x"]/cfg["cube_bins_y"] continuous-jitter format.
     """
     cfg = _LEVEL_CONFIGS.get(randomization_level, _LEVEL_CONFIGS["debug_small"])
     rng = np.random.default_rng(seed + 7919)
 
+    # ── Continuous uniform-sampling format ───────────────────────────────────
+    if cfg.get("mode") == "continuous":
+        # Box: sample uniformly
+        bx = float(rng.uniform(*cfg["box_x_range"]))
+        by = float(rng.uniform(*cfg["box_y_range"]))
+        box_xy = np.asarray([bx, by], dtype=np.float64)
+        box_xyz = np.asarray([bx, by, BOX_FIXED_POS[2]], dtype=np.float64)
+
+        # Button: sample uniformly (naturally separated from box by y-band)
+        btx = float(rng.uniform(*cfg["button_x_range"]))
+        bty = float(rng.uniform(*cfg["button_y_range"]))
+        btn_xy = np.asarray([btx, bty], dtype=np.float64)
+        button_xyz = np.asarray([btx, bty, BUTTON_FIXED_POS[2]], dtype=np.float64)
+
+        # Cube: rejection-sample to avoid box/button overlaps
+        cx_lo, cx_hi = cfg["cube_x_range"]
+        cy_lo, cy_hi = cfg["cube_y_range"]
+        cube_xy = np.asarray([0.0, -0.050], dtype=np.float64)
+        for attempt in range(128):
+            cx = float(rng.uniform(cx_lo, cx_hi))
+            cy = float(rng.uniform(cy_lo, cy_hi))
+            candidate = np.asarray([cx, cy], dtype=np.float64)
+            if not _cube_box_overlap(candidate, box_xy) and not _cube_button_overlap(candidate, btn_xy, 0.07):
+                cube_xy = candidate
+                break
+        cube_xyz = np.asarray([cube_xy[0], cube_xy[1], CUBE_FIXED_Z], dtype=np.float64)
+
+        # Post-hoc bin IDs for metadata/QA tracking (3×2 cube grid, 4 box zones, 4 btn zones)
+        xi = min(2, int((cube_xy[0] - cx_lo) / (cx_hi - cx_lo) * 3))
+        yi = min(1, int((cube_xy[1] - cy_lo) / (cy_hi - cy_lo) * 2))
+        cube_bin_id = xi + yi * 3
+
+        bx_mid = (cfg["box_x_range"][0] + cfg["box_x_range"][1]) / 2
+        by_mid = (cfg["box_y_range"][0] + cfg["box_y_range"][1]) / 2
+        if by > by_mid + 0.010:
+            box_bin_id = 3
+        elif bx < bx_mid - 0.030:
+            box_bin_id = 0
+        elif bx > bx_mid + 0.030:
+            box_bin_id = 2
+        else:
+            box_bin_id = 1
+
+        btx_mid = (cfg["button_x_range"][0] + cfg["button_x_range"][1]) / 2
+        bty_mid = (cfg["button_y_range"][0] + cfg["button_y_range"][1]) / 2
+        button_bin_id = (0 if btx < btx_mid else 1) + (0 if bty < bty_mid else 2)
+
+        return cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id
+
+    # ── New stratified-bin format ────────────────────────────────────────────
+    if "cube_bins" in cfg:
+        cube_bins = cfg["cube_bins"]
+        box_bins = cfg["box_bins"]
+        box_jitter = cfg.get("box_jitter", 0.0)
+        button_jitter = cfg.get("button_jitter", 0.0)
+
+        # Each object uses a different stride/offset so their bins are INDEPENDENT —
+        # cube-left does NOT always pair with box-left, producing fully uncorrelated scenes.
+        n_cube = len(cube_bins)
+        n_box  = len(box_bins)
+        cube_bin_id   = seed % n_cube
+        # stride=3 is coprime to 4, offset=2: box cycles 2,1,0,3,2,1,0,3,...
+        box_bin_id    = (seed * 3 + 2) % n_box
+
+        # Box
+        bx_c, by_c = box_bins[box_bin_id]
+        box_xy = np.asarray([bx_c, by_c], dtype=np.float64)
+        if box_jitter > 0.0:
+            box_xy = box_xy + rng.uniform(-box_jitter, box_jitter, size=2)
+        box_xyz = np.asarray([box_xy[0], box_xy[1], BOX_FIXED_POS[2]], dtype=np.float64)
+
+        # Button: discrete bins if provided, else fixed position with optional jitter
+        button_bins = cfg.get("button_bins", None)
+        if button_bins is not None:
+            n_btn = len(button_bins)
+            # stride=3 is coprime to 4, offset=1: btn cycles 1,0,3,2,1,0,3,2,...
+            button_bin_id = (seed * 3 + 1) % n_btn
+            btx_c, bty_c = button_bins[button_bin_id]
+            button_xy = np.asarray([btx_c, bty_c], dtype=np.float64)
+        else:
+            button_bin_id = 0
+            button_xy = BUTTON_FIXED_POS[:2].copy()
+        if button_jitter > 0.0:
+            button_xy = button_xy + rng.uniform(-button_jitter, button_jitter, size=2)
+        button_xyz = np.asarray([button_xy[0], button_xy[1], BUTTON_FIXED_POS[2]], dtype=np.float64)
+
+        # Cube: sample uniformly from bin, reject if overlaps box/button
+        x_lo, x_hi, y_lo, y_hi = cube_bins[cube_bin_id]
+        cube_x, cube_y = 0.0, -0.040
+        for attempt in range(64):
+            if attempt < 32:
+                cx = float(rng.uniform(x_lo, x_hi))
+                cy = float(rng.uniform(y_lo, y_hi))
+            else:
+                # fallback: any safe position across all bins
+                all_x = (cube_bins[0][0], cube_bins[-1][1])
+                all_y = (cube_bins[0][2], cube_bins[-1][3])
+                cx = float(rng.uniform(all_x[0], all_x[1]))
+                cy = float(rng.uniform(all_y[0], all_y[1]))
+            cube_xy = np.asarray([cx, cy], dtype=np.float64)
+            if not _cube_box_overlap(cube_xy, box_xy) and not _cube_button_overlap(cube_xy, button_xy):
+                cube_x, cube_y = cx, cy
+                break
+
+        cube_xyz = np.asarray([cube_x, cube_y, CUBE_FIXED_Z], dtype=np.float64)
+        return cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id
+
+    # ── Legacy continuous-jitter format ─────────────────────────────────────
     bins_x = cfg["cube_bins_x"]
     bins_y = cfg["cube_bins_y"]
     num_bins = len(bins_x) * len(bins_y)
     bin_idx = seed % num_bins
     xi = bin_idx % len(bins_x)
     yi = bin_idx // len(bins_x)
+    cube_bin_id = bin_idx
+    box_bin_id = 0
+    button_bin_id = 0
 
     box_jitter = cfg["box_jitter"]
     box_xy = BOX_FIXED_POS[:2].copy()
@@ -134,7 +262,6 @@ def compute_reset_positions(
         button_xy = button_xy + rng.uniform(-button_jitter, button_jitter, size=2)
     button_xyz = np.asarray([button_xy[0], button_xy[1], BUTTON_FIXED_POS[2]], dtype=np.float64)
 
-    # Sample cube with rejection for feasibility
     cube_x = 0.0
     cube_y = -0.03
     for attempt in range(64):
@@ -142,7 +269,6 @@ def compute_reset_positions(
             cube_x = _sample_bin(rng, bins_x, xi)
             cube_y = _sample_bin(rng, bins_y, yi)
         else:
-            # fallback: uniform from the full range
             x_lo = bins_x[0][0]
             x_hi = bins_x[-1][1]
             y_lo = bins_y[0][0]
@@ -157,7 +283,7 @@ def compute_reset_positions(
         cube_y = float(rng.uniform(-0.060, -0.010))
 
     cube_xyz = np.asarray([cube_x, cube_y, CUBE_FIXED_Z], dtype=np.float64)
-    return cube_xyz, box_xyz, button_xyz
+    return cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id
 
 
 def apply_button_box_reset_randomization(
@@ -166,13 +292,16 @@ def apply_button_box_reset_randomization(
     seed: int,
     settle_steps: int = 20,
     randomization_level: str = "debug_small",
-) -> Dict[str, Any]:
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Apply feasible cube/box/button randomization before rollout begins.
+
+    Returns (obs, reset_info) where reset_info contains cube_bin_id, box_bin_id,
+    and the placed xyz positions.
 
     Direct simulator writes here are reset-time initialization, not rollout
     oracle actions. Rollout write guards are installed after this helper.
     """
-    cube_xyz, box_xyz, button_xyz = compute_reset_positions(seed, randomization_level)
+    cube_xyz, box_xyz, button_xyz, cube_bin_id, box_bin_id, button_bin_id = compute_reset_positions(seed, randomization_level)
 
     cube = env.env.get_object(CUBE)
     box = env.env.get_object(BOX)
@@ -200,9 +329,17 @@ def apply_button_box_reset_randomization(
             env.env._post_process()
         except Exception:
             pass
+    reset_info: Dict[str, Any] = {
+        "cube_bin_id": int(cube_bin_id),
+        "box_bin_id": int(box_bin_id),
+        "button_bin_id": int(button_bin_id),
+        "cube_xyz": cube_xyz.astype(float).tolist(),
+        "box_xyz": box_xyz.astype(float).tolist(),
+        "button_xyz": button_xyz.astype(float).tolist(),
+    }
     try:
         env.env._update_observables(force=True)
-        return env.env._get_observations(force_update=True)
+        return env.env._get_observations(force_update=True), reset_info
     except Exception:
         env.env.sim.forward()
-        return obs
+        return obs, reset_info

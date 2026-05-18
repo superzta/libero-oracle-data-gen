@@ -88,7 +88,7 @@ def run_seed(env, seed: int, horizon: int, allow_helper: bool, randomization_lev
         env.env.sim.forward()
     except Exception:
         pass
-    obs = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20, randomization_level=randomization_level)
+    obs, _reset_info = apply_button_box_reset_randomization(env, obs, seed, settle_steps=20, randomization_level=randomization_level)
     controller = ButtonBoxController()
     controller.reset(env, obs, {"allow_oracle_state_helper": allow_helper})
     object_joints = []
@@ -261,7 +261,7 @@ def main() -> None:
     parser.add_argument(
         "--randomization-level",
         default="debug_small",
-        choices=["debug_small", "medium", "final", "diverse"],
+        choices=["debug_small", "medium", "final", "diverse", "diverse_v2"],
     )
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()

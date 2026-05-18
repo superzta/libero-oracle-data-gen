@@ -4,68 +4,48 @@ Passed: `True`
 
 ```json
 {
-  "created_at": "2026-05-17 18:22:53",
+  "created_at": "2026-05-17 21:45:12",
   "cross_seed_reasons": [],
   "cube_initial_xy_std": [
-    0.04752,
-    0.023998
+    0.051554,
+    0.013117
   ],
   "diversity": {
-    "bins_occupied": 8,
+    "bins_occupied": 5,
     "cube_initial_positions": [
       [
-        -0.05074,
-        -0.05751
+        0.04775,
+        -0.03693
       ],
       [
-        0.00074,
-        -0.05275
+        0.02413,
+        -0.01312
       ],
       [
-        0.05002,
-        -0.04094
+        0.0638,
+        -0.05266
       ],
       [
-        -0.0639,
-        -0.0121
+        0.11906,
+        -0.03946
       ],
       [
-        0.02556,
-        -0.0135
-      ],
-      [
-        0.06819,
-        -0.01933
-      ],
-      [
-        -0.03914,
-        0.00819
-      ],
-      [
-        0.01407,
-        0.00372
-      ],
-      [
-        0.04254,
-        0.01422
-      ],
-      [
-        -0.06797,
-        -0.03447
+        -0.03881,
+        -0.04324
       ]
     ],
-    "cube_x_range": 0.13617,
+    "cube_x_range": 0.15787,
     "cube_xy_std": [
-      0.04752,
-      0.023998
+      0.051554,
+      0.013117
     ],
-    "cube_y_range": 0.07173,
-    "n": 10
+    "cube_y_range": 0.03954,
+    "n": 5
   },
-  "num_seeds": 10,
+  "num_seeds": 5,
   "passed": true,
-  "randomization_level": "diverse",
-  "strict": true
+  "randomization_level": "diverse_v2",
+  "strict": false
 }
 ```
 
@@ -99,49 +79,9 @@ Passed: `True`
 
 Reasons: none
 
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
+Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> RETRY_GRASP_OPEN -> RETRY_GRASP_RETREAT -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
 
 ## Seed 4
-
-Passed: `True`
-
-Reasons: none
-
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
-
-## Seed 5
-
-Passed: `True`
-
-Reasons: none
-
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
-
-## Seed 6
-
-Passed: `True`
-
-Reasons: none
-
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
-
-## Seed 7
-
-Passed: `True`
-
-Reasons: none
-
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
-
-## Seed 8
-
-Passed: `True`
-
-Reasons: none
-
-Stages: MOVE_ABOVE_BUTTON -> PRESS_BUTTON -> HOLD_BUTTON_PRESS -> RETRACT_FROM_BUTTON -> MOVE_ABOVE_CUBE -> DESCEND_TO_CUBE -> CLOSE_GRIPPER_AND_WAIT -> LIFT_CUBE -> MOVE_ABOVE_BOX -> LOWER_TO_BOX -> OPEN_GRIPPER -> WAIT_SETTLE -> RETRACT_FROM_BOX -> VERIFY_FINAL_STATE -> DONE
-
-## Seed 9
 
 Passed: `True`
 
