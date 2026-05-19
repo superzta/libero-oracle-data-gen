@@ -1,4 +1,4 @@
-"""Diversity QA for button_box initial states in a collected dataset.
+"""Diversity QA for custom-task initial states in a collected dataset.
 
 Checks that cube (and optionally box/button) starting positions vary
 meaningfully across successful episodes. Reports bin occupancy, range,
@@ -47,21 +47,30 @@ _BIN_NAMES = {
 }
 
 
-def load_episode_data(dataset_dir: Path) -> Tuple[List[dict], List[np.ndarray], List[np.ndarray]]:
-    """Return (meta_list, cube_positions, box_positions) from all success HDF5 files."""
+def load_episode_data(dataset_dir: Path) -> Tuple[List[dict], List[np.ndarray], List[np.ndarray], str, str, str]:
+    """Return metadata and primary/target object initial positions."""
     import h5py
 
-    metas, cubes, boxes = [], [], []
+    metas, primaries, targets = [], [], []
+    primary_key = "blue_cube_1_pos"
+    target_key = "open_box_1_pos"
+    primary_name = "cube"
+    target_name = "box"
     for path in sorted(dataset_dir.glob("success_*.hdf5")):
         with h5py.File(path, "r") as h5:
             meta = json.loads(h5.attrs.get("metadata", "{}"))
             metas.append(meta)
             obs = h5.get("observations", {})
-            if "blue_cube_1_pos" in obs:
-                cubes.append(np.asarray(obs["blue_cube_1_pos"][0], dtype=np.float32).reshape(-1))
-            if "open_box_1_pos" in obs:
-                boxes.append(np.asarray(obs["open_box_1_pos"][0], dtype=np.float32).reshape(-1))
-    return metas, cubes, boxes
+            if "green_peg_1_pos" in obs:
+                primary_key = "green_peg_1_pos"
+                target_key = "wooden_hole_block_1_pos"
+                primary_name = "peg"
+                target_name = "block"
+            if primary_key in obs:
+                primaries.append(np.asarray(obs[primary_key][0], dtype=np.float32).reshape(-1))
+            if target_key in obs:
+                targets.append(np.asarray(obs[target_key][0], dtype=np.float32).reshape(-1))
+    return metas, primaries, targets, primary_name, target_name, primary_key
 
 
 def count_grid_bins(positions_xy: np.ndarray, n_bins_x: int = 3, n_bins_y: int = 2) -> int:
@@ -97,10 +106,10 @@ def main() -> None:
     args = parser.parse_args()
 
     dataset_dir = Path(args.dataset_dir)
-    metas, cubes, boxes = load_episode_data(dataset_dir)
+    metas, cubes, boxes, primary_name, target_name, primary_key = load_episode_data(dataset_dir)
 
     if not cubes:
-        print(json.dumps({"error": "No cube initial positions found", "valid": False}, indent=2))
+        print(json.dumps({"error": f"No {primary_name} initial positions found", "valid": False}, indent=2))
         raise SystemExit(1)
 
     # Resolve level
@@ -135,8 +144,8 @@ def main() -> None:
         }
 
     # Named bin occupancy (diverse_v2 only)
-    cube_bin_ids = [m.get("cube_bin_id", -1) for m in metas]
-    box_bin_ids  = [m.get("box_bin_id", -1)  for m in metas]
+    cube_bin_ids = [m.get("peg_bin_id", m.get("cube_bin_id", -1)) for m in metas]
+    box_bin_ids  = [m.get("block_bin_id", m.get("box_bin_id", -1)) for m in metas]
     cube_bins_occupied = sorted(set(b for b in cube_bin_ids if b >= 0))
     box_bins_occupied  = sorted(set(b for b in box_bin_ids  if b >= 0))
     cube_bin_counts = {_BIN_NAMES["cube"][b]: cube_bin_ids.count(b)
@@ -179,21 +188,24 @@ def main() -> None:
         "randomization_level": level,
         "n_episodes": n_episodes,
         "unique_seeds": len(set(seeds)),
-        "cube_x_range_m": round(x_range, 5),
-        "cube_y_range_m": round(y_range, 5),
-        "cube_xy_std_m": [round(v, 5) for v in xy_std],
+        "primary_object": primary_name,
+        "target_object": target_name,
+        "primary_observation_key": primary_key,
+        f"{primary_name}_x_range_m": round(x_range, 5),
+        f"{primary_name}_y_range_m": round(y_range, 5),
+        f"{primary_name}_xy_std_m": [round(v, 5) for v in xy_std],
         "positional_bins_occupied": bins_occupied,
         "max_possible_bins": max_possible_bins,
         "grid": [args.grid_x, args.grid_y],
         "cube_named_bins_occupied": cube_bins_occupied,
         "cube_bin_counts": cube_bin_counts,
-        "box_named_bins_occupied": box_bins_occupied,
-        "box_bin_counts": box_bin_counts,
+        f"{target_name}_named_bins_occupied": box_bins_occupied,
+        f"{target_name}_bin_counts": box_bin_counts,
         "thresholds": thresholds,
-        "box_variation": box_variation,
+        f"{target_name}_variation": box_variation,
         "failures": failures,
         "passed": not failures,
-        "cube_initial_positions_xy": cube_xy.astype(float).round(5).tolist(),
+        f"{primary_name}_initial_positions_xy": cube_xy.astype(float).round(5).tolist(),
     }
     print(json.dumps(report, indent=2, sort_keys=True))
     if args.strict and failures:

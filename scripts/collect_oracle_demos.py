@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import copy
+import gc
 import json
 import sys
 import time
@@ -16,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from controllers import CONTROLLER_REGISTRY
 from button_box_reset_utils import apply_button_box_reset_randomization
+from peg_insertion_reset_utils import apply_peg_insertion_reset_randomization
 from libero_env_utils import configure_runtime_env, get_task_language, resolve_bddl_path
 
 configure_runtime_env()
@@ -86,6 +89,12 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             settle_steps=20,
             randomization_level=args.randomization_level,
         )
+    elif args.custom_task == "peg_insertion":
+        obs, reset_info = apply_peg_insertion_reset_randomization(
+            env, obs, seed,
+            settle_steps=20,
+            randomization_level=args.randomization_level,
+        )
     controller.reset(env, obs, metadata)
     observations: Dict[str, List[np.ndarray]] = {key: [] for key in numeric_obs(obs)}
     actions, rewards, dones, env_states, debug = [], [], [], [], []
@@ -98,7 +107,7 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
     info = {}
     stage_trace = []
 
-    for _ in range(args.horizon):
+    for step in range(args.horizon):
         for key, value in numeric_obs(obs).items():
             observations.setdefault(key, []).append(value)
         try:
@@ -119,9 +128,15 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
         debug.append(debug_state)
         if args.save_stage_trace:
             stage_trace.append(debug_state)
+        if not args.quiet and step > 0 and step % 100 == 0:
+            print(
+                f"  [collect seed={seed}] step={step} stage={debug_state.get('stage')} "
+                f"reason={debug_state.get('transition_reason')}",
+                flush=True,
+            )
         physical_success = controller.is_success(obs, info, env)
         if args.require_physical_success:
-            physical_success = physical_success and passes_button_box_physical_checks(controller, obs)
+            physical_success = physical_success and passes_task_physical_checks(args.custom_task, controller, obs)
         if physical_success and not success_seen:
             success = True
             success_seen = True
@@ -133,6 +148,10 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             final_hold_remaining -= 1
         if done and args.custom_task != "button_box":
             failure_reason = "env_done"
+            break
+        if getattr(controller, "stage", "") == "DONE" and not success_seen:
+            debug_reason = debug_state.get("transition_reason") if debug else ""
+            failure_reason = debug_reason or "controller_done_without_success"
             break
 
     final_obs = numeric_obs(obs)
@@ -168,6 +187,9 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "cube_bin_id": reset_info.get("cube_bin_id", -1),
             "box_bin_id": reset_info.get("box_bin_id", -1),
             "button_bin_id": reset_info.get("button_bin_id", -1),
+            "peg_bin_id": reset_info.get("peg_bin_id", -1),
+            "block_bin_id": reset_info.get("block_bin_id", -1),
+            "reset_info": reset_info,
             "initial_positions": {
                 key: value.reshape(-1).astype(float).tolist()
                 for key, value in initial_obs.items()
@@ -186,13 +208,15 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
     }
 
 
-def passes_button_box_physical_checks(controller, obs: Dict[str, Any]) -> bool:
+def passes_task_physical_checks(custom_task: str, controller, obs: Dict[str, Any]) -> bool:
     if getattr(controller, "allow_oracle_state_helper", False) or getattr(controller, "oracle_helper_used", False):
         return False
     if getattr(controller, "stage", "") != "DONE":
         return False
     try:
-        return bool(controller._physical_final_state(obs))
+        if custom_task in {"button_box", "peg_insertion"}:
+            return bool(controller._physical_final_state(obs))
+        return bool(controller.is_success(obs, {}, None))
     except Exception:
         return False
 
@@ -261,6 +285,22 @@ def main() -> None:
     parser.add_argument("--camera-size", type=int, default=128)
     parser.add_argument("--camera-names", default="agentview,robot0_eye_in_hand")
     parser.add_argument("--save-video", action="store_true")
+    parser.set_defaults(video_success_precheck=True)
+    parser.add_argument(
+        "--video-success-precheck",
+        dest="video_success_precheck",
+        action="store_true",
+        help=(
+            "When saving videos, first run each seed without frame capture and only "
+            "replay successful seeds with video. This avoids buffering long failed videos."
+        ),
+    )
+    parser.add_argument(
+        "--no-video-success-precheck",
+        dest="video_success_precheck",
+        action="store_false",
+        help="Disable the successful-seed replay path and buffer frames during every attempt.",
+    )
     parser.add_argument("--video-camera", default="agentview")
     parser.add_argument("--output-dir", default="datasets")
     parser.add_argument("--keep-failures", action="store_true")
@@ -308,7 +348,23 @@ def main() -> None:
             seed = args.seed + attempts
             if not args.quiet:
                 print(f"[collect attempt {attempts + 1}/{args.max_attempts}] seed={seed} start", flush=True)
-            episode = collect_one(env, controller, args, seed, attempts, {**base_metadata, **controller_metadata})
+            if args.save_video and args.video_success_precheck:
+                precheck_args = copy.copy(args)
+                precheck_args.save_video = False
+                episode = collect_one(
+                    env, controller, precheck_args, seed, attempts, {**base_metadata, **controller_metadata}
+                )
+                if episode["success"]:
+                    if not args.quiet:
+                        print(f"[collect attempt {attempts + 1}/{args.max_attempts}] seed={seed} replay video", flush=True)
+                    video_episode = collect_one(env, controller, args, seed, attempts, {**base_metadata, **controller_metadata})
+                    if video_episode["success"]:
+                        episode = video_episode
+                    else:
+                        episode = video_episode
+                        episode["failure_reason"] = f"video_replay_failed:{episode['failure_reason']}"
+            else:
+                episode = collect_one(env, controller, args, seed, attempts, {**base_metadata, **controller_metadata})
             attempts += 1
             seeds.append(seed)
             if episode["success"]:
@@ -352,6 +408,8 @@ def main() -> None:
                         f"success_rate={rate:.3f} most_common_failure={common_reason}",
                         flush=True,
                     )
+            del episode
+            gc.collect()
     finally:
         env.close()
 

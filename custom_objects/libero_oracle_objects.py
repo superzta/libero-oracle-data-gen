@@ -65,3 +65,25 @@ class OpenBox(OracleXMLObject):
         if joints == "default":
             joints = [dict(type="free", damping="0.0005")]
         super().__init__(name=name, obj_name=obj_name, joints=joints)
+
+
+@register_object
+class GreenPeg(OracleXMLObject):
+    """A graspable upright green peg for insertion tasks."""
+
+    def __init__(self, name="green_peg", obj_name="green_peg", joints="default"):
+        super().__init__(name=name, obj_name=obj_name, joints=joints)
+        self.rotation = (0.0, 0.0)
+        self.rotation_axis = "z"
+
+
+@register_object
+class WoodenHoleBlock(OracleXMLObject):
+    """A wooden block with a visible shallow socket and contain_region site."""
+
+    def __init__(self, name="wooden_hole_block", obj_name="wooden_hole_block", joints="default"):
+        if joints == "default":
+            joints = [dict(type="free", damping="0.0005")]
+        super().__init__(name=name, obj_name=obj_name, joints=joints)
+        self.rotation = (0.0, 0.0)
+        self.rotation_axis = "z"

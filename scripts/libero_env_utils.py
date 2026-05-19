@@ -10,6 +10,7 @@ from typing import Optional
 
 CUSTOM_TASKS = {
     "button_box": Path(__file__).resolve().parents[1] / "bddl_files" / "button_box.bddl",
+    "peg_insertion": Path(__file__).resolve().parents[1] / "bddl_files" / "peg_insertion.bddl",
 }
 
 
