@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from controllers import CONTROLLER_REGISTRY
 from button_box_reset_utils import apply_button_box_reset_randomization
 from peg_insertion_reset_utils import apply_peg_insertion_reset_randomization
+from tool_sweep_reset_utils import apply_tool_sweep_reset_randomization
 from libero_env_utils import configure_runtime_env, get_task_language, resolve_bddl_path
 
 configure_runtime_env()
@@ -95,6 +96,12 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             settle_steps=20,
             randomization_level=args.randomization_level,
         )
+    elif args.custom_task == "tool_sweep":
+        obs, reset_info = apply_tool_sweep_reset_randomization(
+            env, obs, seed,
+            settle_steps=20,
+            randomization_level=args.randomization_level,
+        )
     controller.reset(env, obs, metadata)
     observations: Dict[str, List[np.ndarray]] = {key: [] for key in numeric_obs(obs)}
     actions, rewards, dones, env_states, debug = [], [], [], [], []
@@ -146,7 +153,7 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             if final_hold_remaining <= 0:
                 break
             final_hold_remaining -= 1
-        if done and args.custom_task != "button_box":
+        if done and args.custom_task not in ("button_box", "tool_sweep"):
             failure_reason = "env_done"
             break
         if getattr(controller, "stage", "") == "DONE" and not success_seen:
@@ -189,6 +196,9 @@ def collect_one(env, controller, args, seed: int, attempt: int, metadata: Dict[s
             "button_bin_id": reset_info.get("button_bin_id", -1),
             "peg_bin_id": reset_info.get("peg_bin_id", -1),
             "block_bin_id": reset_info.get("block_bin_id", -1),
+            "pusher_bin_id": reset_info.get("pusher_bin_id", -1),
+            "dustpan_bin_id": reset_info.get("dustpan_bin_id", -1),
+            "lane_angle_deg": reset_info.get("lane_angle_deg", None),
             "reset_info": reset_info,
             "initial_positions": {
                 key: value.reshape(-1).astype(float).tolist()
@@ -214,7 +224,7 @@ def passes_task_physical_checks(custom_task: str, controller, obs: Dict[str, Any
     if getattr(controller, "stage", "") != "DONE":
         return False
     try:
-        if custom_task in {"button_box", "peg_insertion"}:
+        if custom_task in {"button_box", "peg_insertion", "tool_sweep"}:
             return bool(controller._physical_final_state(obs))
         return bool(controller.is_success(obs, {}, None))
     except Exception:

@@ -1,0 +1,28 @@
+<mujoco model="pusher_tool">
+  <worldbody>
+    <body>
+      <body name="object">
+        <!-- Handle: 2.6cm x 2.6cm x 8cm box, origin at handle center. -->
+        <!-- EEF grasps at origin z; blade is 5cm below. -->
+        <geom type="box" size="0.013 0.013 0.040" pos="0 0 0"
+              rgba="0.55 0.38 0.18 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" size="0.013 0.013 0.040" pos="0 0 0"
+              rgba="0.55 0.38 0.18 1" group="0"
+              density="400" friction="6.0 0.05 0.0001"
+              solimp="0.995 0.995 0.001" solref="0.002 1" />
+        <!-- Blade: 12cm wide x 2.4cm deep x 2cm tall, flush with handle bottom. -->
+        <!-- blade top at z=-0.040 = handle bottom; blade bottom at z=-0.060. -->
+        <geom type="box" size="0.060 0.012 0.010" pos="0 0 -0.050"
+              rgba="0.78 0.78 0.82 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" size="0.060 0.012 0.010" pos="0 0 -0.050"
+              rgba="0.78 0.78 0.82 1" group="0"
+              density="800" friction="6.0 0.05 0.0001"
+              solimp="0.995 0.995 0.001" solref="0.002 1" />
+      </body>
+      <!-- bottom_site at blade bottom (table contact point) -->
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 -0.060" name="bottom_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.040" name="top_site" group="0" />
+      <site rgba="0 0 0 0" size="0.060" pos="0.060 0.012 -0.050" name="horizontal_radius_site" group="0" />
+    </body>
+  </worldbody>
+</mujoco>

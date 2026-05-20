@@ -19,6 +19,7 @@ class PegInsertionController(BaseFSMController):
         "LIFT_PEG",
         "MOVE_ABOVE_HOLE",
         "ALIGN_WITH_HOLE",
+        "FINE_ALIGN",
         "LOWER_INSERT",
         "HOLD_INSERT",
         "OPEN_GRIPPER",
@@ -65,7 +66,7 @@ class PegInsertionController(BaseFSMController):
         grasp = np.array([grasp_xy[0], grasp_xy[1], self.active_grasp_z + float(self.metadata.get("peg_grasp_z_offset", 0.005))], dtype=np.float32)
         lift_pos = np.array([grasp_xy[0], grasp_xy[1], self.active_grasp_z + float(self.metadata.get("lift_z_offset", 0.115))], dtype=np.float32)
         above_hole = hole + np.array([0.0, 0.0, float(self.metadata.get("hole_above_z_offset", 0.160))], dtype=np.float32)
-        align = hole + np.array([0.0, 0.0, float(self.metadata.get("hole_align_z_offset", 0.090))], dtype=np.float32)
+        align = hole + np.array([0.0, 0.0, float(self.metadata.get("hole_align_z_offset", 0.110))], dtype=np.float32)
         insert = hole + np.array([0.0, 0.0, float(self.metadata.get("insert_z_offset", 0.040))], dtype=np.float32)
         retract = self._retract_target(hole)
         above_hole_with_peg_offset = self._target_with_held_peg_offset(obs, peg, above_hole)
@@ -109,16 +110,28 @@ class PegInsertionController(BaseFSMController):
             target = align_with_peg_offset
             action = self._bounded_move(obs, target, gripper=1.0, max_delta=0.050)
             if self.reached(obs, target, tol=0.040) or self.stage_step >= 105:
-                self.next_stage("LOWER_INSERT", "aligned_above_socket")
+                self.next_stage("FINE_ALIGN", "coarse_align_done")
+        elif self.stage == "FINE_ALIGN":
+            # Direct peg-to-hole XY correction: command wrist by the observed peg-hole error
+            peg_xy_err = float(np.linalg.norm(peg[:2] - hole[:2]))
+            eef = self.get_eef_pos(obs)
+            xy_correction = np.clip(hole[:2] - peg[:2], -0.050, 0.050)
+            fine_z = hole[2] + float(self.metadata.get("hole_align_z_offset", 0.110))
+            wrist_target = np.array([eef[0] + xy_correction[0], eef[1] + xy_correction[1], fine_z], dtype=np.float32)
+            target = wrist_target
+            action = self._bounded_move(obs, target, gripper=1.0, max_delta=float(self.metadata.get("fine_align_max_delta", 0.040)))
+            exit_tol = float(self.metadata.get("fine_align_xy_exit_tol", 0.012))
+            if peg_xy_err <= exit_tol or self.stage_step >= int(self.metadata.get("fine_align_max_steps", 160)):
+                self.next_stage("LOWER_INSERT", f"fine_aligned_xy_err={peg_xy_err:.4f}")
         elif self.stage == "LOWER_INSERT":
             target = insert_with_peg_offset
-            action = self._bounded_move(obs, target, gripper=1.0, max_delta=0.026)
-            if self.reached(obs, target, tol=0.040) or self.stage_step >= 140:
+            action = self._bounded_move(obs, target, gripper=1.0, max_delta=0.018)
+            if self.reached(obs, target, tol=0.040) or self.stage_step >= 160:
                 self.next_stage("HOLD_INSERT", "insert_pose_reached")
         elif self.stage == "HOLD_INSERT":
             target = insert_with_peg_offset
             action = self._bounded_move(obs, target, gripper=1.0, max_delta=0.006)
-            if self.stage_step >= int(self.metadata.get("hold_insert_steps", 8)):
+            if self.stage_step >= int(self.metadata.get("hold_insert_steps", 22)):
                 self.next_stage("OPEN_GRIPPER", "insert_hold_complete")
         elif self.stage == "OPEN_GRIPPER":
             target = insert_with_peg_offset

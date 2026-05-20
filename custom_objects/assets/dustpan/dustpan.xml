@@ -1,0 +1,45 @@
+<mujoco model="dustpan">
+  <worldbody>
+    <body>
+      <body name="object">
+        <!-- Shallow open tray / dustpan corral.  No floor — table surface is the floor. -->
+        <!-- Origin at front entry edge, tray center (z=0 = table surface when joint z=0.900). -->
+        <!-- Opening faces local -y direction; tray interior extends in +y direction. -->
+        <!-- Interior: x in [-0.100, 0.100], y in [0.000, 0.060], z in [0.000, 0.038]. -->
+        <!-- All wall geoms start at local z=-0.002 so they embed 2mm into the table. -->
+
+        <!-- contain_region site: invisible box covering tray interior for BDDL checking. -->
+        <site type="box" pos="0 0.030 0.018" quat="1 0 0 0"
+              size="0.090 0.030 0.018" rgba="0.0 0.8 0.1 0.0"
+              name="contain_region" group="0" />
+
+        <!-- Back wall (+y edge, stopping the block). -->
+        <geom type="box" size="0.108 0.008 0.020" pos="0 0.068 0.018"
+              rgba="0.85 0.72 0.48 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" size="0.108 0.008 0.020" pos="0 0.068 0.018"
+              rgba="0.85 0.72 0.48 1" group="0"
+              density="5000" friction="4.0 1.0 0.1"
+              solimp="0.999 0.999 0.0001" solref="0.001 1" />
+
+        <!-- Left side wall (-x). -->
+        <geom type="box" size="0.008 0.038 0.020" pos="-0.108 0.030 0.018"
+              rgba="0.85 0.72 0.48 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" size="0.008 0.038 0.020" pos="-0.108 0.030 0.018"
+              rgba="0.85 0.72 0.48 1" group="0"
+              density="5000" friction="4.0 1.0 0.1"
+              solimp="0.999 0.999 0.0001" solref="0.001 1" />
+
+        <!-- Right side wall (+x). -->
+        <geom type="box" size="0.008 0.038 0.020" pos="0.108 0.030 0.018"
+              rgba="0.85 0.72 0.48 1" group="1" contype="0" conaffinity="0" />
+        <geom type="box" size="0.008 0.038 0.020" pos="0.108 0.030 0.018"
+              rgba="0.85 0.72 0.48 1" group="0"
+              density="5000" friction="4.0 1.0 0.1"
+              solimp="0.999 0.999 0.0001" solref="0.001 1" />
+      </body>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.000" name="bottom_site" group="0" />
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.038" name="top_site" group="0" />
+      <site rgba="0 0 0 0" size="0.108" pos="0.108 0.068 0.018" name="horizontal_radius_site" group="0" />
+    </body>
+  </worldbody>
+</mujoco>

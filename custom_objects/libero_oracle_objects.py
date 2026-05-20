@@ -87,3 +87,35 @@ class WoodenHoleBlock(OracleXMLObject):
         super().__init__(name=name, obj_name=obj_name, joints=joints)
         self.rotation = (0.0, 0.0)
         self.rotation_axis = "z"
+
+
+@register_object
+class PusherTool(OracleXMLObject):
+    """A T-shaped pusher tool: cylindrical handle + wide blade for non-prehensile sweep."""
+
+    def __init__(self, name="pusher_tool", obj_name="pusher_tool", joints="default"):
+        super().__init__(name=name, obj_name=obj_name, joints=joints)
+        self.rotation = (0.0, 0.0)
+        self.rotation_axis = "z"
+
+
+@register_object
+class RedBlock(OracleXMLObject):
+    """A flat red box used as the swept object in the tool_sweep task."""
+
+    def __init__(self, name="red_block", obj_name="red_block", joints="default"):
+        super().__init__(name=name, obj_name=obj_name, joints=joints)
+        self.rotation = (0.0, 0.0)
+        self.rotation_axis = "z"
+
+
+@register_object
+class Dustpan(OracleXMLObject):
+    """A shallow open tray with three walls and a contain_region site."""
+
+    def __init__(self, name="dustpan", obj_name="dustpan", joints="default"):
+        if joints == "default":
+            joints = [dict(type="free", damping="0.0005")]
+        super().__init__(name=name, obj_name=obj_name, joints=joints)
+        self.rotation = (0.0, 0.0)
+        self.rotation_axis = "z"

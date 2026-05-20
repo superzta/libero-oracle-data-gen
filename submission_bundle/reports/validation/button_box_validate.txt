@@ -1,0 +1,812 @@
+{
+  "dataset_dir": "datasets/button_box_button_box_20260517_221832",
+  "errors": [],
+  "num_successes": 100,
+  "unique_seeds": 100,
+  "valid": true,
+  "varied_cube_initial_states": true,
+  "varied_initial_states": true,
+  "video_frame_checks": [
+    {
+      "episode_length": 592,
+      "hdf5": "success_001_seed_0.hdf5",
+      "mismatch": false,
+      "video": "success_001_seed_0.mp4",
+      "video_frame_count": 592,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 676,
+      "hdf5": "success_002_seed_1.hdf5",
+      "mismatch": false,
+      "video": "success_002_seed_1.mp4",
+      "video_frame_count": 676,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 707,
+      "hdf5": "success_003_seed_3.hdf5",
+      "mismatch": false,
+      "video": "success_003_seed_3.mp4",
+      "video_frame_count": 707,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 593,
+      "hdf5": "success_004_seed_4.hdf5",
+      "mismatch": false,
+      "video": "success_004_seed_4.mp4",
+      "video_frame_count": 593,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 621,
+      "hdf5": "success_005_seed_5.hdf5",
+      "mismatch": false,
+      "video": "success_005_seed_5.mp4",
+      "video_frame_count": 621,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 592,
+      "hdf5": "success_006_seed_6.hdf5",
+      "mismatch": false,
+      "video": "success_006_seed_6.mp4",
+      "video_frame_count": 592,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 689,
+      "hdf5": "success_007_seed_7.hdf5",
+      "mismatch": false,
+      "video": "success_007_seed_7.mp4",
+      "video_frame_count": 689,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 674,
+      "hdf5": "success_008_seed_8.hdf5",
+      "mismatch": false,
+      "video": "success_008_seed_8.mp4",
+      "video_frame_count": 674,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 702,
+      "hdf5": "success_009_seed_10.hdf5",
+      "mismatch": false,
+      "video": "success_009_seed_10.mp4",
+      "video_frame_count": 702,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 881,
+      "hdf5": "success_010_seed_11.hdf5",
+      "mismatch": false,
+      "video": "success_010_seed_11.mp4",
+      "video_frame_count": 881,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 573,
+      "hdf5": "success_011_seed_13.hdf5",
+      "mismatch": false,
+      "video": "success_011_seed_13.mp4",
+      "video_frame_count": 573,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 593,
+      "hdf5": "success_012_seed_15.hdf5",
+      "mismatch": false,
+      "video": "success_012_seed_15.mp4",
+      "video_frame_count": 593,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 667,
+      "hdf5": "success_013_seed_17.hdf5",
+      "mismatch": false,
+      "video": "success_013_seed_17.mp4",
+      "video_frame_count": 667,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 572,
+      "hdf5": "success_014_seed_18.hdf5",
+      "mismatch": false,
+      "video": "success_014_seed_18.mp4",
+      "video_frame_count": 572,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 687,
+      "hdf5": "success_015_seed_19.hdf5",
+      "mismatch": false,
+      "video": "success_015_seed_19.mp4",
+      "video_frame_count": 687,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 676,
+      "hdf5": "success_016_seed_20.hdf5",
+      "mismatch": false,
+      "video": "success_016_seed_20.mp4",
+      "video_frame_count": 676,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 900,
+      "hdf5": "success_017_seed_23.hdf5",
+      "mismatch": false,
+      "video": "success_017_seed_23.mp4",
+      "video_frame_count": 900,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 645,
+      "hdf5": "success_018_seed_24.hdf5",
+      "mismatch": false,
+      "video": "success_018_seed_24.mp4",
+      "video_frame_count": 645,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 641,
+      "hdf5": "success_019_seed_25.hdf5",
+      "mismatch": false,
+      "video": "success_019_seed_25.mp4",
+      "video_frame_count": 641,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 601,
+      "hdf5": "success_020_seed_27.hdf5",
+      "mismatch": false,
+      "video": "success_020_seed_27.mp4",
+      "video_frame_count": 601,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 622,
+      "hdf5": "success_021_seed_29.hdf5",
+      "mismatch": false,
+      "video": "success_021_seed_29.mp4",
+      "video_frame_count": 622,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 701,
+      "hdf5": "success_022_seed_30.hdf5",
+      "mismatch": false,
+      "video": "success_022_seed_30.mp4",
+      "video_frame_count": 701,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 648,
+      "hdf5": "success_023_seed_31.hdf5",
+      "mismatch": false,
+      "video": "success_023_seed_31.mp4",
+      "video_frame_count": 648,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 666,
+      "hdf5": "success_024_seed_32.hdf5",
+      "mismatch": false,
+      "video": "success_024_seed_32.mp4",
+      "video_frame_count": 666,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 736,
+      "hdf5": "success_025_seed_34.hdf5",
+      "mismatch": false,
+      "video": "success_025_seed_34.mp4",
+      "video_frame_count": 736,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 625,
+      "hdf5": "success_026_seed_36.hdf5",
+      "mismatch": false,
+      "video": "success_026_seed_36.mp4",
+      "video_frame_count": 625,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 577,
+      "hdf5": "success_027_seed_37.hdf5",
+      "mismatch": false,
+      "video": "success_027_seed_37.mp4",
+      "video_frame_count": 577,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 685,
+      "hdf5": "success_028_seed_38.hdf5",
+      "mismatch": false,
+      "video": "success_028_seed_38.mp4",
+      "video_frame_count": 685,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 861,
+      "hdf5": "success_029_seed_39.hdf5",
+      "mismatch": false,
+      "video": "success_029_seed_39.mp4",
+      "video_frame_count": 861,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 660,
+      "hdf5": "success_030_seed_40.hdf5",
+      "mismatch": false,
+      "video": "success_030_seed_40.mp4",
+      "video_frame_count": 660,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 675,
+      "hdf5": "success_031_seed_42.hdf5",
+      "mismatch": false,
+      "video": "success_031_seed_42.mp4",
+      "video_frame_count": 675,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 705,
+      "hdf5": "success_032_seed_43.hdf5",
+      "mismatch": false,
+      "video": "success_032_seed_43.mp4",
+      "video_frame_count": 705,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 627,
+      "hdf5": "success_033_seed_44.hdf5",
+      "mismatch": false,
+      "video": "success_033_seed_44.mp4",
+      "video_frame_count": 627,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 641,
+      "hdf5": "success_034_seed_45.hdf5",
+      "mismatch": false,
+      "video": "success_034_seed_45.mp4",
+      "video_frame_count": 641,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 659,
+      "hdf5": "success_035_seed_48.hdf5",
+      "mismatch": false,
+      "video": "success_035_seed_48.mp4",
+      "video_frame_count": 659,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 628,
+      "hdf5": "success_036_seed_49.hdf5",
+      "mismatch": false,
+      "video": "success_036_seed_49.mp4",
+      "video_frame_count": 628,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 663,
+      "hdf5": "success_037_seed_51.hdf5",
+      "mismatch": false,
+      "video": "success_037_seed_51.mp4",
+      "video_frame_count": 663,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 588,
+      "hdf5": "success_038_seed_53.hdf5",
+      "mismatch": false,
+      "video": "success_038_seed_53.mp4",
+      "video_frame_count": 588,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 619,
+      "hdf5": "success_039_seed_54.hdf5",
+      "mismatch": false,
+      "video": "success_039_seed_54.mp4",
+      "video_frame_count": 619,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 595,
+      "hdf5": "success_040_seed_55.hdf5",
+      "mismatch": false,
+      "video": "success_040_seed_55.mp4",
+      "video_frame_count": 595,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 679,
+      "hdf5": "success_041_seed_56.hdf5",
+      "mismatch": false,
+      "video": "success_041_seed_56.mp4",
+      "video_frame_count": 679,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 692,
+      "hdf5": "success_042_seed_57.hdf5",
+      "mismatch": false,
+      "video": "success_042_seed_57.mp4",
+      "video_frame_count": 692,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 633,
+      "hdf5": "success_043_seed_58.hdf5",
+      "mismatch": false,
+      "video": "success_043_seed_58.mp4",
+      "video_frame_count": 633,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 600,
+      "hdf5": "success_044_seed_61.hdf5",
+      "mismatch": false,
+      "video": "success_044_seed_61.mp4",
+      "video_frame_count": 600,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 647,
+      "hdf5": "success_045_seed_62.hdf5",
+      "mismatch": false,
+      "video": "success_045_seed_62.mp4",
+      "video_frame_count": 647,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 666,
+      "hdf5": "success_046_seed_64.hdf5",
+      "mismatch": false,
+      "video": "success_046_seed_64.mp4",
+      "video_frame_count": 666,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 650,
+      "hdf5": "success_047_seed_65.hdf5",
+      "mismatch": false,
+      "video": "success_047_seed_65.mp4",
+      "video_frame_count": 650,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 616,
+      "hdf5": "success_048_seed_66.hdf5",
+      "mismatch": false,
+      "video": "success_048_seed_66.mp4",
+      "video_frame_count": 616,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 616,
+      "hdf5": "success_049_seed_67.hdf5",
+      "mismatch": false,
+      "video": "success_049_seed_67.mp4",
+      "video_frame_count": 616,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 842,
+      "hdf5": "success_050_seed_69.hdf5",
+      "mismatch": false,
+      "video": "success_050_seed_69.mp4",
+      "video_frame_count": 842,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 665,
+      "hdf5": "success_051_seed_70.hdf5",
+      "mismatch": false,
+      "video": "success_051_seed_70.mp4",
+      "video_frame_count": 665,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 671,
+      "hdf5": "success_052_seed_71.hdf5",
+      "mismatch": false,
+      "video": "success_052_seed_71.mp4",
+      "video_frame_count": 671,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 733,
+      "hdf5": "success_053_seed_74.hdf5",
+      "mismatch": false,
+      "video": "success_053_seed_74.mp4",
+      "video_frame_count": 733,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 624,
+      "hdf5": "success_054_seed_75.hdf5",
+      "mismatch": false,
+      "video": "success_054_seed_75.mp4",
+      "video_frame_count": 624,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 666,
+      "hdf5": "success_055_seed_77.hdf5",
+      "mismatch": false,
+      "video": "success_055_seed_77.mp4",
+      "video_frame_count": 666,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 630,
+      "hdf5": "success_056_seed_80.hdf5",
+      "mismatch": false,
+      "video": "success_056_seed_80.mp4",
+      "video_frame_count": 630,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 582,
+      "hdf5": "success_057_seed_84.hdf5",
+      "mismatch": false,
+      "video": "success_057_seed_84.mp4",
+      "video_frame_count": 582,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 607,
+      "hdf5": "success_058_seed_87.hdf5",
+      "mismatch": false,
+      "video": "success_058_seed_87.mp4",
+      "video_frame_count": 607,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 642,
+      "hdf5": "success_059_seed_88.hdf5",
+      "mismatch": false,
+      "video": "success_059_seed_88.mp4",
+      "video_frame_count": 642,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 610,
+      "hdf5": "success_060_seed_89.hdf5",
+      "mismatch": false,
+      "video": "success_060_seed_89.mp4",
+      "video_frame_count": 610,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 673,
+      "hdf5": "success_061_seed_90.hdf5",
+      "mismatch": false,
+      "video": "success_061_seed_90.mp4",
+      "video_frame_count": 673,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 605,
+      "hdf5": "success_062_seed_91.hdf5",
+      "mismatch": false,
+      "video": "success_062_seed_91.mp4",
+      "video_frame_count": 605,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 591,
+      "hdf5": "success_063_seed_92.hdf5",
+      "mismatch": false,
+      "video": "success_063_seed_92.mp4",
+      "video_frame_count": 591,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 592,
+      "hdf5": "success_064_seed_95.hdf5",
+      "mismatch": false,
+      "video": "success_064_seed_95.mp4",
+      "video_frame_count": 592,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 612,
+      "hdf5": "success_065_seed_96.hdf5",
+      "mismatch": false,
+      "video": "success_065_seed_96.mp4",
+      "video_frame_count": 612,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 707,
+      "hdf5": "success_066_seed_99.hdf5",
+      "mismatch": false,
+      "video": "success_066_seed_99.mp4",
+      "video_frame_count": 707,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 619,
+      "hdf5": "success_067_seed_100.hdf5",
+      "mismatch": false,
+      "video": "success_067_seed_100.mp4",
+      "video_frame_count": 619,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 579,
+      "hdf5": "success_068_seed_102.hdf5",
+      "mismatch": false,
+      "video": "success_068_seed_102.mp4",
+      "video_frame_count": 579,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 604,
+      "hdf5": "success_069_seed_103.hdf5",
+      "mismatch": false,
+      "video": "success_069_seed_103.mp4",
+      "video_frame_count": 604,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 676,
+      "hdf5": "success_070_seed_114.hdf5",
+      "mismatch": false,
+      "video": "success_070_seed_114.mp4",
+      "video_frame_count": 676,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 630,
+      "hdf5": "success_071_seed_117.hdf5",
+      "mismatch": false,
+      "video": "success_071_seed_117.mp4",
+      "video_frame_count": 630,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 609,
+      "hdf5": "success_072_seed_118.hdf5",
+      "mismatch": false,
+      "video": "success_072_seed_118.mp4",
+      "video_frame_count": 609,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 640,
+      "hdf5": "success_073_seed_120.hdf5",
+      "mismatch": false,
+      "video": "success_073_seed_120.mp4",
+      "video_frame_count": 640,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 635,
+      "hdf5": "success_074_seed_122.hdf5",
+      "mismatch": false,
+      "video": "success_074_seed_122.mp4",
+      "video_frame_count": 635,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 670,
+      "hdf5": "success_075_seed_123.hdf5",
+      "mismatch": false,
+      "video": "success_075_seed_123.mp4",
+      "video_frame_count": 670,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 613,
+      "hdf5": "success_076_seed_126.hdf5",
+      "mismatch": false,
+      "video": "success_076_seed_126.mp4",
+      "video_frame_count": 613,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 656,
+      "hdf5": "success_077_seed_127.hdf5",
+      "mismatch": false,
+      "video": "success_077_seed_127.mp4",
+      "video_frame_count": 656,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 723,
+      "hdf5": "success_078_seed_129.hdf5",
+      "mismatch": false,
+      "video": "success_078_seed_129.mp4",
+      "video_frame_count": 723,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 626,
+      "hdf5": "success_079_seed_132.hdf5",
+      "mismatch": false,
+      "video": "success_079_seed_132.mp4",
+      "video_frame_count": 626,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 628,
+      "hdf5": "success_080_seed_133.hdf5",
+      "mismatch": false,
+      "video": "success_080_seed_133.mp4",
+      "video_frame_count": 628,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 621,
+      "hdf5": "success_081_seed_139.hdf5",
+      "mismatch": false,
+      "video": "success_081_seed_139.mp4",
+      "video_frame_count": 621,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 617,
+      "hdf5": "success_082_seed_140.hdf5",
+      "mismatch": false,
+      "video": "success_082_seed_140.mp4",
+      "video_frame_count": 617,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 575,
+      "hdf5": "success_083_seed_142.hdf5",
+      "mismatch": false,
+      "video": "success_083_seed_142.mp4",
+      "video_frame_count": 575,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 669,
+      "hdf5": "success_084_seed_143.hdf5",
+      "mismatch": false,
+      "video": "success_084_seed_143.mp4",
+      "video_frame_count": 669,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 877,
+      "hdf5": "success_085_seed_144.hdf5",
+      "mismatch": false,
+      "video": "success_085_seed_144.mp4",
+      "video_frame_count": 877,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 711,
+      "hdf5": "success_086_seed_145.hdf5",
+      "mismatch": false,
+      "video": "success_086_seed_145.mp4",
+      "video_frame_count": 711,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 657,
+      "hdf5": "success_087_seed_146.hdf5",
+      "mismatch": false,
+      "video": "success_087_seed_146.mp4",
+      "video_frame_count": 657,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 725,
+      "hdf5": "success_088_seed_149.hdf5",
+      "mismatch": false,
+      "video": "success_088_seed_149.mp4",
+      "video_frame_count": 725,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 678,
+      "hdf5": "success_089_seed_150.hdf5",
+      "mismatch": false,
+      "video": "success_089_seed_150.mp4",
+      "video_frame_count": 678,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 900,
+      "hdf5": "success_090_seed_152.hdf5",
+      "mismatch": false,
+      "video": "success_090_seed_152.mp4",
+      "video_frame_count": 900,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 666,
+      "hdf5": "success_091_seed_153.hdf5",
+      "mismatch": false,
+      "video": "success_091_seed_153.mp4",
+      "video_frame_count": 666,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 560,
+      "hdf5": "success_092_seed_154.hdf5",
+      "mismatch": false,
+      "video": "success_092_seed_154.mp4",
+      "video_frame_count": 560,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 620,
+      "hdf5": "success_093_seed_156.hdf5",
+      "mismatch": false,
+      "video": "success_093_seed_156.mp4",
+      "video_frame_count": 620,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 645,
+      "hdf5": "success_094_seed_157.hdf5",
+      "mismatch": false,
+      "video": "success_094_seed_157.mp4",
+      "video_frame_count": 645,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 633,
+      "hdf5": "success_095_seed_159.hdf5",
+      "mismatch": false,
+      "video": "success_095_seed_159.mp4",
+      "video_frame_count": 633,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 621,
+      "hdf5": "success_096_seed_163.hdf5",
+      "mismatch": false,
+      "video": "success_096_seed_163.mp4",
+      "video_frame_count": 621,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 720,
+      "hdf5": "success_097_seed_164.hdf5",
+      "mismatch": false,
+      "video": "success_097_seed_164.mp4",
+      "video_frame_count": 720,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 603,
+      "hdf5": "success_098_seed_166.hdf5",
+      "mismatch": false,
+      "video": "success_098_seed_166.mp4",
+      "video_frame_count": 603,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 589,
+      "hdf5": "success_099_seed_167.hdf5",
+      "mismatch": false,
+      "video": "success_099_seed_167.mp4",
+      "video_frame_count": 589,
+      "video_stride": 1
+    },
+    {
+      "episode_length": 741,
+      "hdf5": "success_100_seed_168.hdf5",
+      "mismatch": false,
+      "video": "success_100_seed_168.mp4",
+      "video_frame_count": 741,
+      "video_stride": 1
+    }
+  ],
+  "warnings": []
+}
